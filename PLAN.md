@@ -982,3 +982,16 @@ Exact next-phase prompt:
 > Do not expose unauthenticated metrics publicly; keep deployment access controls
 > explicit. Add only evidence-backed controls, then run focused tests, race, vet,
 > build and formatting. Update threat model, PLAN.md, exact evidence and next prompt.
+
+### Worker CI dependency correction (2026-10-28)
+
+The failed `Python worker checks` run followed the release-review move of
+`httpx2` from runtime to test-only dependencies. Its workflow still installed
+`requirements.txt` before importing Starlette `TestClient`; `requirements-test.txt`
+extends runtime dependencies with `httpx2`. Both worker CI workflows now install
+the test requirements. This is necessary for test import correctness; leaving
+runtime dependencies unchanged avoids shipping a test-only package. `python -m
+compileall -q worker_runtime` and `git diff --check` pass locally. The DB-backed
+Compose test could not be rerun in this session because Docker CLI could not
+connect to the Docker daemon; a GitHub Actions rerun is needed to verify the CI
+fix on its runner.
