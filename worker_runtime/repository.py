@@ -20,6 +20,31 @@ from .handlers import MAX_PAYLOAD_BYTES, MAX_RESULT_BYTES, validate_payload
 
 _SCHEMA = Path(__file__).with_name("schema.sql")
 
+# Separate the common ready queue from expired leases so PostgreSQL can use the
+# two purpose-built partial indexes instead of scanning/sorting both states.
+CLAIM_CANDIDATE_CTES = """queued_candidate AS MATERIALIZED (
+    SELECT id,'queued'::text AS previous_state,generation AS previous_generation,
+           worker_id AS previous_worker,priority,available_at,created_at
+    FROM worker_jobs
+    WHERE state='queued' AND attempts<max_attempts AND available_at<=clock_timestamp()
+    ORDER BY priority DESC,available_at,created_at,id FOR UPDATE SKIP LOCKED LIMIT 1
+), expired_candidate AS MATERIALIZED (
+    SELECT id,'running'::text AS previous_state,generation AS previous_generation,
+           worker_id AS previous_worker,priority,available_at,created_at
+    FROM worker_jobs
+    WHERE state='running' AND attempts<max_attempts AND cancel_requested_at IS NULL
+      AND lease_until<=clock_timestamp()
+    ORDER BY priority DESC,available_at,created_at,id FOR UPDATE SKIP LOCKED LIMIT 1
+), candidate AS (
+    SELECT * FROM (
+        SELECT * FROM queued_candidate
+        UNION ALL
+        SELECT * FROM expired_candidate
+    ) AS candidates
+    ORDER BY priority DESC,available_at,created_at,id
+    LIMIT 1
+)"""
+
 
 def _retryable_database_error(exc: psycopg.Error) -> bool:
     state = getattr(exc, "sqlstate", None) or ""
@@ -46,8 +71,6 @@ class Job:
     generation: int
     lease_token: uuid.UUID
     lease_until: Any
-    created_at: Any
-    queue_wait_seconds: float
     recovered: bool = False
 
 
@@ -237,24 +260,14 @@ class Repository:
         token = uuid.uuid4()
         with self._transaction() as conn:
             row = conn.execute(
-                """WITH candidate AS (
-                       SELECT id, state AS previous_state, generation AS previous_generation, worker_id AS previous_worker,
-                              created_at
-                       FROM worker_jobs
-                       WHERE attempts < max_attempts AND (
-                           (state='queued' AND available_at <= clock_timestamp()) OR
-                           (state='running' AND cancel_requested_at IS NULL AND lease_until <= clock_timestamp())
-                       )
-                       ORDER BY priority DESC, available_at, created_at, id FOR UPDATE SKIP LOCKED LIMIT 1
-                   ), claimed AS (
+                f"""WITH {CLAIM_CANDIDATE_CTES}, claimed AS (
                        UPDATE worker_jobs j SET state='running', attempts=j.attempts+1,
                            worker_id=%s, lease_token=%s, generation=j.generation+1,
                            lease_until=clock_timestamp() + (%s * interval '1 second'),
                            updated_at=clock_timestamp()
                        FROM candidate c WHERE j.id=c.id
                        RETURNING j.id,j.job_type,j.payload,j.attempts,j.max_attempts,j.max_runtime_seconds,
-                           j.generation,j.lease_token,j.lease_until,c.previous_state,c.previous_generation,c.previous_worker,
-                           c.created_at,extract(epoch FROM (clock_timestamp()-c.created_at)) AS queue_wait_seconds
+                           j.generation,j.lease_token,j.lease_until,c.previous_state,c.previous_generation,c.previous_worker
                    ), recorded AS (
                        INSERT INTO worker_job_events(job_id,event_type,attempt,worker_id,lease_token,generation,details)
                        SELECT id, CASE WHEN previous_state='running' THEN 'lease_reclaimed' ELSE 'claimed' END,
@@ -267,19 +280,22 @@ class Repository:
             ).fetchone()
             if row is None:
                 return None
-            return Job(row["id"], row["job_type"], row["payload"], row["attempts"], row["max_attempts"], row["max_runtime_seconds"], row["generation"], row["lease_token"], row["lease_until"], row["created_at"], float(row["queue_wait_seconds"]), row["previous_state"] == "running")
+            return Job(row["id"], row["job_type"], row["payload"], row["attempts"], row["max_attempts"], row["max_runtime_seconds"], row["generation"], row["lease_token"], row["lease_until"], row["previous_state"] == "running")
 
-    def mark_started(self, job: Job) -> bool:
+    def mark_started(self, job: Job, claim_latency_seconds: float | None = None) -> float | None:
         """Persist the handler start boundary only while this generation owns a live lease."""
         with self._transaction() as conn:
             row = conn.execute(
-                """INSERT INTO worker_job_events(job_id,event_type,attempt,worker_id,lease_token,generation)
-                   SELECT id,'started',attempts,worker_id,lease_token,generation FROM worker_jobs
+                """INSERT INTO worker_job_events(job_id,event_type,attempt,worker_id,lease_token,generation,details)
+                   SELECT id,'started',attempts,worker_id,lease_token,generation,
+                          jsonb_strip_nulls(jsonb_build_object('queue_wait_seconds',extract(epoch FROM(clock_timestamp()-created_at)),
+                                                              'claim_latency_seconds',%s))
+                   FROM worker_jobs
                    WHERE id=%s AND state='running' AND worker_id=%s AND lease_token=%s AND generation=%s
-                     AND lease_until>clock_timestamp() RETURNING id""",
-                (job.id, self.worker_id, job.lease_token, job.generation),
+                     AND lease_until>clock_timestamp() RETURNING details""",
+                (claim_latency_seconds, job.id, self.worker_id, job.lease_token, job.generation),
             ).fetchone()
-            return row is not None
+            return None if row is None else float(row["details"]["queue_wait_seconds"])
 
     def renew(self, job: Job, lease_seconds: int) -> bool:
         with self._transaction() as conn:

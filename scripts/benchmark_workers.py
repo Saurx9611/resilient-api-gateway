@@ -81,7 +81,9 @@ def wait_finished(depth: int, timeout: int) -> tuple[float, dict[str, int]]:
 def measure(depth: int, workers: int, elapsed: float, states: dict[str, int]) -> dict:
     with connect() as conn:
         samples = conn.execute("""WITH starts AS (
-             SELECT job_id,generation,attempt,occurred_at FROM worker_job_events WHERE event_type='started'
+             SELECT job_id,generation,attempt,occurred_at,
+                    nullif(details->>'claim_latency_seconds','')::double precision*1000 AS claim_ms
+             FROM worker_job_events WHERE event_type='started'
            ), claims AS (
              SELECT job_id,generation,attempt,occurred_at FROM worker_job_events WHERE event_type IN ('claimed','lease_reclaimed')
            ), enqueued AS (
@@ -89,7 +91,7 @@ def measure(depth: int, workers: int, elapsed: float, states: dict[str, int]) ->
            ), ended AS (
              SELECT job_id,generation,attempt,occurred_at FROM worker_job_events WHERE event_type IN ('succeeded','retry_scheduled','timed_out','permanent_failure','abandoned')
            ) SELECT extract(epoch FROM (s.occurred_at-q.occurred_at))*1000 AS queue_ms,
-                    extract(epoch FROM (e.occurred_at-s.occurred_at))*1000 AS execution_ms
+                    extract(epoch FROM (e.occurred_at-s.occurred_at))*1000 AS execution_ms,s.claim_ms
              FROM starts s JOIN claims c USING(job_id,generation,attempt) JOIN enqueued q USING(job_id)
              JOIN ended e USING(job_id,generation,attempt)""").fetchall()
         pg = conn.execute("SELECT current_setting('server_version') AS version,current_setting('max_connections') AS max_connections,current_setting('shared_buffers') AS shared_buffers,current_setting('work_mem') AS work_mem,current_setting('synchronous_commit') AS synchronous_commit").fetchone()
@@ -97,12 +99,13 @@ def measure(depth: int, workers: int, elapsed: float, states: dict[str, int]) ->
         tables = conn.execute("SELECT relname,n_live_tup,n_dead_tup,seq_scan,idx_scan FROM pg_stat_user_tables WHERE relname IN ('worker_jobs','worker_job_events') ORDER BY relname").fetchall()
     queue = [float(row["queue_ms"]) for row in samples]
     execution = [float(row["execution_ms"]) for row in samples]
+    claim = [float(row["claim_ms"]) for row in samples if row["claim_ms"] is not None]
     def distribution(values: list[float]) -> dict:
         return {"samples":len(values),"p50_ms":percentile(values,.50),"p95_ms":percentile(values,.95),"p99_ms":percentile(values,.99)}
     return {"status":"measured","worker_processes":workers,"worker_concurrency_each":1,"queue_depth":depth,"jobs":depth,
             "handler":"synthetic_report with empty records; fixed spawned allowlisted handler","elapsed_seconds":elapsed,
             "throughput_jobs_per_second":depth/elapsed if elapsed else None,
-            "latency_ms":{"queue_wait":distribution(queue),"execution":distribution(execution)},
+            "latency_ms":{"claim":distribution(claim),"queue_wait":distribution(queue),"execution":distribution(execution)},
             "error_rate":(depth-states.get("succeeded",0))/depth,"final_states":states,
             "database_connections":dict(sessions),"postgresql":dict(pg),"table_statistics":tables}
 
@@ -137,17 +140,7 @@ def main() -> int:
                 seed(depth)
                 timestamp=dt.datetime.now(dt.timezone.utc).isoformat(timespec="microseconds")
                 elapsed,states=wait_finished(depth,opts.timeout_seconds)
-                logs=command(compose+["logs","--no-color","--since",timestamp,"benchmark-worker"],check=False)
-                claims=[]
-                for line in logs.splitlines():
-                    start=line.find("{")
-                    if start<0: continue
-                    try: record=json.loads(line[start:])
-                    except json.JSONDecodeError: continue
-                    if record.get("event")=="job.claimed" and isinstance(record.get("claim_duration_ms"),(int,float)):
-                        claims.append(float(record["claim_duration_ms"]))
                 result=measure(depth,count,elapsed,states)
-                result["latency_ms"]["claim"]= {"samples":len(claims),"p50_ms":percentile(claims,.50),"p95_ms":percentile(claims,.95),"p99_ms":percentile(claims,.99)}
                 result.update({"timestamp_utc":timestamp,"environment":{"os":platform.platform(),"python":platform.python_version(),"host_cpu_count":os.cpu_count(),"docker_cpu_count":docker.get("NCPU"),"docker_memory_mib":memory,"worker_cpu_limit":1,"worker_memory_limit_mib":256,"postgres_cpu_limit":2,"postgres_memory_limit_mib":512},"postgresql_resource_limits":{"cpu":2,"memory_mib":512}})
                 filename=f"workers-{count}-depth-{depth}.json"
                 (output/filename).write_text(json.dumps(result,indent=2,default=str)+"\n",encoding="utf-8")

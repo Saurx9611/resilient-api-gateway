@@ -1,6 +1,6 @@
 {
   "schema": "rag-bench-v1",
-  "utc": "2026-10-27T18:03:07Z",
+  "utc": "2026-10-27T19:39:41Z",
   "environment": {
     "os": "Windows-11-10.0.26200-SP0",
     "machine": "AMD64",
@@ -14,68 +14,68 @@
     "test_duration": "per scenario recorded",
     "concurrency": 2,
     "requested_requests": 100,
-    "limitations": "single host Python ThreadingHTTPServer fixture; Python client and upstream may dominate; no TLS; sample percentiles use nearest-rank index; no production inference"
+    "limitations": "single host Python ThreadingHTTPServer fixture; Python client and upstream may dominate; no TLS; sample percentiles use nearest-rank; no production inference"
   },
   "scenarios": [
     {
       "name": "direct",
       "requests": 100,
       "concurrency": 2,
-      "duration_seconds": 0.147485,
-      "requests_per_second": 678.034,
+      "duration_seconds": 0.134599,
+      "requests_per_second": 742.949,
       "statuses": {
         "200": 100
       },
       "errors": 0,
       "error_percent": 0.0,
-      "p50_ms": 1.342,
-      "p95_ms": 13.998,
-      "p99_ms": 22.69
+      "p50_ms": 1.551,
+      "p95_ms": 2.51,
+      "p99_ms": 22.444
     },
     {
       "name": "proxied",
       "requests": 100,
       "concurrency": 2,
-      "duration_seconds": 0.218732,
-      "requests_per_second": 457.181,
+      "duration_seconds": 0.186078,
+      "requests_per_second": 537.41,
       "statuses": {
         "200": 100
       },
       "errors": 0,
       "error_percent": 0.0,
-      "p50_ms": 3.081,
-      "p95_ms": 10.89,
-      "p99_ms": 20.186
+      "p50_ms": 3.386,
+      "p95_ms": 5.082,
+      "p99_ms": 7.705
     },
     {
       "name": "429_fail_fast",
       "requests": 40,
       "concurrency": 2,
-      "duration_seconds": 0.07172,
-      "requests_per_second": 557.721,
+      "duration_seconds": 0.073719,
+      "requests_per_second": 542.599,
       "statuses": {
         "429": 40
       },
       "errors": 0,
       "error_percent": 0.0,
-      "p50_ms": 2.212,
-      "p95_ms": 6.048,
-      "p99_ms": 19.058
+      "p50_ms": 2.659,
+      "p95_ms": 3.155,
+      "p99_ms": 28.709
     },
     {
       "name": "circuit_open_fail_fast",
       "requests": 40,
       "concurrency": 2,
-      "duration_seconds": 0.098473,
-      "requests_per_second": 406.202,
+      "duration_seconds": 0.143284,
+      "requests_per_second": 279.165,
       "statuses": {
         "503": 40
       },
       "errors": 0,
       "error_percent": 0.0,
-      "p50_ms": 2.151,
-      "p95_ms": 22.806,
-      "p99_ms": 25.527
+      "p50_ms": 2.164,
+      "p95_ms": 22.001,
+      "p99_ms": 26.409
     }
   ]
 }

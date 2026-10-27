@@ -72,8 +72,10 @@ Run the production-shaped local gateway demo with Docker Compose. Set two
 different tokens first (the dashboard token is also configured in the gateway):
 
 ```powershell
-$env:GATEWAY_DEMO_TOKEN = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
-$env:METRICS_BEARER_TOKEN = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+$env:GATEWAY_DEMO_TOKEN = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
+$env:METRICS_BEARER_TOKEN = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
+# Set this if host port 6379 is occupied.
+$env:REDIS_PORT = '36380'
 docker compose up --build --wait
 ```
 
@@ -93,10 +95,17 @@ public URL is claimed until a real deployment is available and checked. The
 worker companion retains its separate Compose file and lifecycle:
 
 ```text
-docker compose -f compose.workers.yaml up
-docker compose -f compose.workers.yaml down
+docker compose -p chronos -f compose.workers.yaml --profile control --profile workers up --build -d
+docker compose -p chronos -f compose.workers.yaml --profile control --profile workers down
 ```
-This worker stack uses ephemeral PostgreSQL with local-only credentials; the worker dashboard and API remain on the Compose network unless explicitly published.
+This worker stack uses ephemeral PostgreSQL and local-only credentials. The dashboard and API publish on loopback at ports 3000 and 8000; PostgreSQL stays on the Compose network. The optional monitoring profile publishes Prometheus and Grafana on loopback.
+
+Worker metrics and benchmark methodology, raw before/after measurements, query
+plans, and the optional Grafana profile are documented in
+[`docs/worker-control-plane.md`](docs/worker-control-plane.md) and
+[`benchmarks/worker/BENCHMARKS.md`](benchmarks/worker/BENCHMARKS.md). Local
+worker-phase performance numbers are single-host observations, not capacity
+claims; `/metrics` must remain private in a deployed topology.
 
 ## HTTP contract and limits
 
@@ -151,6 +160,22 @@ an actual smoke-tested URL. See the [deployment guide](docs/deployment.md).
 Do not expose this local foundation as a hardened public gateway.
 
 ## Design and evidence
+
+### Release-review evidence (local, 2026-10-28)
+
+| Claim | Test or benchmark | Actual observed result | Caveat |
+|---|---|---|---|
+| Gateway tests and static checks pass | Go 1.27.3: `go test -count=1 ./...`, `go test -race -count=1 ./...`, `go vet ./...`, `go mod tidy -diff`; `REDIS_TEST_URL=redis://127.0.0.1:36379/0` for the Go tests | All Go packages passed with no race report; vet and tidy produced no findings or module diff | Windows 11 amd64 local host; Go also discovers a no-test package under `web/node_modules/flatted` |
+| Gateway fault behavior works against controlled fixtures and real Redis | `scripts/circuit-chaos.py`; Redis integration suite | 10 sequential requests observed 500, 500, 503×3 (without added upstream hits), 504 on the slow half-open probe, 503, then 200×3 after recovery | Loopback-only fixtures and disposable Redis; not a production fault test |
+| Gateway and dashboard Compose stack builds and serves fixed routes | `docker compose config --quiet`, `up --build --wait`; bounded HTTP smoke | Redis, both simulators, gateway, and web were healthy; `/healthz`, `/readyz`, `/one`, `/two`, dashboard `/`, and `/api/healthz` returned 200; `/metrics` returned 401 without a token and 200 with it | First startup found host port 6379 occupied; rerun used `REDIS_PORT=36380`. Verified URLs are local only: `http://127.0.0.1:8080` and `http://127.0.0.1:3000` |
+| Worker API, scheduler, repository, retry, and process recovery pass with PostgreSQL | `docker compose -p rag-release-workers -f compose.workers.yaml --profile test run --build --rm tests` | 53 tests passed in 84.667s against disposable PostgreSQL 16.15 and independent worker processes | Expected connection-refusal lines are emitted by the database-outage test; suite passes |
+| Worker Compose demo stack is runnable | Full `control` + `workers` profile startup and local HTTP smoke | PostgreSQL/dashboard healthy; API `/healthz` and Swagger 200; API and dashboard proxy returned 401 without token, 200 with token; one submitted `synthetic_report` reached `succeeded` | Loopback URLs `127.0.0.1:8000` and `127.0.0.1:3000`; checked-in token is for local demo only |
+| Gateway benchmark reports measured direct, proxy, 429, and open-circuit behavior | `bench/run.py --requests 100 --concurrency 2`; raw `docs/verification/phase-5-benchmark.json` | 1KiB HTTP/1.1 loopback: direct 100×200 in 0.134599s (p50/95/99 1.551/2.510/22.444ms); proxy 100×200 in 0.186078s (3.386/5.082/7.705ms); 40×429 and 40×503, zero unexpected statuses | One short run using Python fixtures/client, no TLS or repeated-trial interval; nearest-rank percentiles do not establish gateway overhead targets |
+| Worker query and throughput artifacts are measured | 15 before and 15 after worker matrix cases; `benchmarks/worker/BENCHMARKS.md` | All completed with zero job errors; 100-job throughput at 16 workers was 4.690→7.020 jobs/s; candidate plan was 4.019ms/183 shared hits→0.105ms/5 hits | One synthetic local matrix; EXPLAIN candidate selector omits update/event insert; no capacity inference |
+| Frontend and container build checks complete | `npm run lint`, `npx tsc --noEmit`, Next production build during Compose image build | Lint/type/build passed for current UI changes | No hosted CI run or deployment smoke; no public URL is claimed |
+
+- Git diff review included active worker observability, query-plan/benchmark, UI, and documentation edits. Only the duplicate retry-counter increment was fixed in that code, with a regression test. `git diff --check` passed.
+- CI and hosted deployment remain unverified. No provider credentials or deployed HTTPS URL were available.
 
 - [Smallest useful v1 and requirement-to-test matrix](docs/requirements.md)
 - [Phase 1 architecture decisions](docs/decisions/ADR-004-phase-one-http-contract.md)
@@ -236,7 +261,7 @@ internal origin (default `http://127.0.0.1:8080`). Do not expose the token to
 browser JavaScript. Example local setup, using a generated local secret:
 
 ```powershell
-$env:GATEWAY_DEMO_TOKEN = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+$env:GATEWAY_DEMO_TOKEN = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
 $env:REDIS_URL = 'redis://127.0.0.1:6379/0'
 go run ./cmd/gateway -listen 127.0.0.1:8080 -upstream-one http://127.0.0.1:9001 -upstream-two http://127.0.0.1:9002
 ```

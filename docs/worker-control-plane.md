@@ -115,3 +115,41 @@ No example runs user code, shell commands, or arbitrary network delivery.
 
 Verification commands and observed PostgreSQL-backed tests are recorded in
 `PLAN.md` and `docs/verification/phase-5-control-plane.txt`.
+
+## Worker observability
+
+`GET /v1/observability` is bearer-authenticated with the `read` scope and supplies
+the UI's operational panel: queue states, 60-second completion throughput,
+queue-wait/execution/claim p50/p95/p99 from persisted lifecycle events, worker
+activity, retries/recovery/dead letters, and bounded API pool utilization.
+Percentiles are calculated from the reported event sample, not predicted future
+latency. The endpoint's event aggregation covers the selected 24/168-hour window;
+large event histories need retention and query-capacity work before higher-volume
+deployment.
+
+`/metrics` is Prometheus text exposition for private local scraping. Worker
+exporters bind inside the Compose network on port 9100 when
+`CHRONOS_WORKER_METRICS_PORT` is configured; the API exporter uses port 8000.
+Compose intentionally publishes neither worker exporters nor Prometheus/Grafana
+to a public listener. API is bound to loopback for local use. Protect `/metrics`
+at deployment ingress or expose it only on a private network. Labels use a fixed
+handler allowlist and bounded outcomes; never add job IDs, worker IDs, exception
+messages, or arbitrary payload values as labels. Process counters and histograms
+reset on restart; PostgreSQL events are the durable lifecycle record.
+
+The optional local monitoring profile starts Prometheus and Grafana alongside
+the control and worker profiles:
+
+```powershell
+docker compose -p chronos-observe -f compose.workers.yaml --profile control --profile workers --profile observability up --build -d worker-1 worker-2 worker-3 prometheus grafana
+Invoke-WebRequest http://127.0.0.1:9090/-/healthy
+Invoke-WebRequest http://127.0.0.1:3001/api/health
+docker compose -p chronos-observe -f compose.workers.yaml --profile control --profile workers --profile observability down --volumes
+```
+
+Grafana login is the demo-only `admin` / `dev-only-grafana`; do not reuse it.
+Its provisioned `Chronos Workers` dashboard is a local starting point, not an
+alerting or access-control configuration. The dashboard port 3000 is also used
+by the Next.js app, so if that host port is occupied, start Prometheus and Grafana
+explicitly as above rather than bringing up every service in the `control`
+profile at once.

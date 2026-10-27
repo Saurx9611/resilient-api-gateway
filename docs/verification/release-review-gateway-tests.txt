@@ -1,0 +1,290 @@
+﻿=== RUN   TestCircuitOutcomeClassification
+=== RUN   TestCircuitOutcomeClassification/success
+=== RUN   TestCircuitOutcomeClassification/client_404
+=== RUN   TestCircuitOutcomeClassification/client_429
+=== RUN   TestCircuitOutcomeClassification/upstream_500
+=== RUN   TestCircuitOutcomeClassification/upstream_503
+=== RUN   TestCircuitOutcomeClassification/transport
+=== RUN   TestCircuitOutcomeClassification/truncated_body
+=== RUN   TestCircuitOutcomeClassification/client_cancellation
+=== RUN   TestCircuitOutcomeClassification/gateway_deadline
+=== RUN   TestCircuitOutcomeClassification/upload_error
+=== RUN   TestCircuitOutcomeClassification/abandoned_body
+--- PASS: TestCircuitOutcomeClassification (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/success (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/client_404 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/client_429 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/upstream_500 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/upstream_503 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/transport (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/truncated_body (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/client_cancellation (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/gateway_deadline (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/upload_error (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/abandoned_body (0.00s)
+=== RUN   TestRealRedisConnectionLossPolicies
+2026/10/28 01:38:25 INFO request complete request_id=e0937395ca9d47fb364995fac590bd94 route=one status=200 duration_seconds=0.0047325
+2026/10/28 01:38:25 WARN rate limiter dependency failure route=one policy=fail_closed
+2026/10/28 01:38:25 INFO request complete request_id=c9b9df6095f2477285dd10391b739e8c route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 WARN rate limiter dependency failure route=two policy=fail_open
+2026/10/28 01:38:25 INFO request complete request_id=996a457a804f06f9f645ea75f492b922 route=two status=200 duration_seconds=0.0005347
+--- PASS: TestRealRedisConnectionLossPolicies (0.01s)
+=== RUN   TestAdmissionHeadersAndNoBodyRead
+2026/10/28 01:38:25 INFO request complete request_id=acc6916c9e665f51c037a88a759f8778 route=one status=429 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=fb9101df2c0cfd3b3bfaa8e1406edfad route=unmatched status=404 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=9176056ad18ce8c3ebca58c4861d9cdc route=one status=400 duration_seconds=0
+--- PASS: TestAdmissionHeadersAndNoBodyRead (0.00s)
+=== RUN   TestAdmissionOutagePoliciesAndHooks
+--- PASS: TestAdmissionOutagePoliciesAndHooks (0.00s)
+=== RUN   TestAdmissionSuccessOwnsHeadersAndConsumesOnce
+--- PASS: TestAdmissionSuccessOwnsHeadersAndConsumesOnce (0.00s)
+=== RUN   TestInvalidPeerNeverFailsOpen
+2026/10/28 01:38:25 INFO request complete request_id=726f4e44fa4da3d0e84c840f8403b2e0 route=one status=400 duration_seconds=0
+--- PASS: TestInvalidPeerNeverFailsOpen (0.00s)
+=== RUN   TestCanceledAdmissionCannotFailOpen
+2026/10/28 01:38:25 INFO request complete request_id=4b84bfe6989600d33aa56f45c72decb0 route=one status=200 duration_seconds=0
+--- PASS: TestCanceledAdmissionCannotFailOpen (0.00s)
+=== RUN   TestCircuitHTTPTransitionsAndIsolation
+2026/10/28 01:38:25 INFO request complete request_id=1abd65e79e8d372eb960b45e32eab49f route=one status=500 duration_seconds=0.0005646
+2026/10/28 01:38:25 INFO request complete request_id=3c776cee5b2362a06bb863c90b566adb route=one status=404 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=0d9beaeedbc17dca1bfa9c17c509af4e route=one status=500 duration_seconds=0.0005345
+2026/10/28 01:38:25 INFO request complete request_id=3ad6379b866142ada3d8a24d4d157cdf route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=b896d92e5558e05d466cc5c0bcfa0e3e route=two status=200 duration_seconds=0.0005631
+2026/10/28 01:38:25 INFO request complete request_id=ec7a3034ddbba7bc5405732173bb7764 route=one status=200 duration_seconds=0.0005649
+2026/10/28 01:38:25 INFO request complete request_id=d83d00b99cb0930600e782da7216ee7d route=one status=200 duration_seconds=0
+--- PASS: TestCircuitHTTPTransitionsAndIsolation (0.00s)
+=== RUN   TestCircuitSharedOriginAndTransportFailure
+2026/10/28 01:38:25 INFO request complete request_id=cb209565aba11eed118ac21d4487ac1f route=one status=503 duration_seconds=0.0005327
+2026/10/28 01:38:25 INFO request complete request_id=cce0aee4af2ae03f2e35e47e0a526d5f route=two status=503 duration_seconds=0
+--- PASS: TestCircuitSharedOriginAndTransportFailure (0.00s)
+=== RUN   TestCircuitConcurrentHTTPProbes
+2026/10/28 01:38:25 INFO request complete request_id=437c2e1c9a028287cb6f5a30e3df8d5f route=one status=500 duration_seconds=0.0005291
+2026/10/28 01:38:25 INFO request complete request_id=e394e0ea1d776459ec2a6365be9af1f2 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=1614162157168cdfbbd921e1dbe6be22 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=0e524223fae07f6331b8cb669f3ea68c route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=4f4128077b4bd55b6119df0465f3f05e route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=c90cbf3c3ce760f448e9518137d3b78b route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=8ad0198ae11f4bfdb55e85974240eeb9 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=24c06538dbb790573aecb3afc6121258 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=308b5abf6fe32c1a3488e31ff960e639 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=c6c7864be390cf7cba816b5db459d83d route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=e70123efb2ff784cfaf489e908a58865 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=44f608148889ddf9f6d6cfd436837764 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=6257d04cb4f656807975bd3a34b9f4e7 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=56b6fe3e54e240e59dce57ce46aa52f7 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=58a58acae216b90264409b1aa597cf50 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=f43f3269a7228ab6057d5bcf380745f4 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=fb64f7982ee3c31ee299886094afd8a0 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=7694e81f466750297c5ef15f3146e246 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=6d4f90ba5fc135b972e5e47ccf8e0c9d route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=6ca671e8eba24003dd5fb22779829d73 route=one status=200 duration_seconds=0.0049068
+2026/10/28 01:38:25 INFO request complete request_id=00039e2d18ba6519a92e3f13eb329c9c route=one status=200 duration_seconds=0.0049068
+--- PASS: TestCircuitConcurrentHTTPProbes (0.01s)
+=== RUN   TestCircuitClientCancellationNeutral
+2026/10/28 01:38:25 INFO request complete request_id=c220d87a7a1d93b3d28bf2b88d9c0cde route=one status=200 duration_seconds=0.0005283
+--- PASS: TestCircuitClientCancellationNeutral (0.00s)
+=== RUN   TestCircuitStreamedFailureKeepsProbeSlot
+2026/10/28 01:38:25 INFO request complete request_id=cc70a2548e82fed9f01e8755d8bca090 route=one status=500 duration_seconds=0.0005357
+2026/10/28 01:38:25 INFO request complete request_id=33da375b56534aab938c7eab55629160 route=one status=503 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=fa426241da656f78c1a1091798ef8494 route=one status=500 duration_seconds=0.0005243
+--- PASS: TestCircuitStreamedFailureKeepsProbeSlot (0.00s)
+=== RUN   TestConfigDocumentValidationAndLastGood
+--- PASS: TestConfigDocumentValidationAndLastGood (0.01s)
+=== RUN   TestDemoDisabledWithoutServerTokenAndRejectsWeakToken
+2026/10/28 01:38:25 INFO request complete request_id=8acc29cbf388bf39bc94e78e3ebaeefe route=unmatched status=404 duration_seconds=0
+--- PASS: TestDemoDisabledWithoutServerTokenAndRejectsWeakToken (0.00s)
+=== RUN   TestDemoControlsRequireAuthorizationAndFixedActions
+2026/10/28 01:38:25 INFO request complete request_id=a804b3d0979ec2c23d2c65ea7c99a30b route=unmatched status=401 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=7eb8cfe7716f7cbc1ed7ade23effd7d8 route=unmatched status=401 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=bdadf4e106f78b26861825da7fd69976 route=unmatched status=400 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=ce3fe6a39e56a01ff06c327a49231a3e route=unmatched status=413 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=0c6c0a87b114dd16653b38f45883cce3 route=unmatched status=405 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=faf035f36a6f0c0642edcad1546b6638 route=unmatched status=404 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=aacbe18871fce2ad2ed517810d7de5ae route=unmatched status=413 duration_seconds=0
+2026/10/28 01:38:25 INFO request complete request_id=3e457db8e6466de410850773c85e90ac route=unmatched status=200 duration_seconds=0
+--- PASS: TestDemoControlsRequireAuthorizationAndFixedActions (0.00s)
+=== RUN   TestDemoCircuitRecoveryUsesIsolatedBreaker
+2026/10/28 01:38:25 INFO request complete request_id=9d69c7e0bf4228dedf7cf929f94cb2d1 route=unmatched status=200 duration_seconds=0.0005881
+--- PASS: TestDemoCircuitRecoveryUsesIsolatedBreaker (0.00s)
+=== RUN   TestDemoNormalIsFixedGatewayRequestAndCooldownApplies
+2026/10/28 01:38:25 INFO request complete request_id=900bc61b033fc360e29801ea8f93df0a route=one status=204 duration_seconds=0.0010441
+2026/10/28 01:38:25 INFO request complete request_id=db44e834d6cf1b387589fce966355e87 route=unmatched status=200 duration_seconds=0.0010441
+2026/10/28 01:38:25 INFO request complete request_id=6fc2594dd9abe69e71b9c74e10d92b37 route=unmatched status=429 duration_seconds=0
+--- PASS: TestDemoNormalIsFixedGatewayRequestAndCooldownApplies (0.00s)
+=== RUN   TestDemoRateBurstUsesRealLimiterAndFixedCap
+2026/10/28 01:38:25 INFO request complete request_id=cfeaca9696e9409a08d64d4970efdefb route=one status=200 duration_seconds=0.0037246
+2026/10/28 01:38:25 INFO request complete request_id=1d4e925bf1be65af98194373686c30f1 route=one status=200 duration_seconds=0.00107
+2026/10/28 01:38:25 INFO request complete request_id=e6207b16a0c98afc48371e4d80ae14f9 route=one status=429 duration_seconds=0.0005262
+2026/10/28 01:38:25 INFO request complete request_id=ba2332b4765d87deb4246b0ce3a18ffc route=unmatched status=200 duration_seconds=0.0058458
+2026/10/28 01:38:25 INFO request complete request_id=21c806f0b037f68a48dc97eaa4af1bb1 route=unmatched status=200 duration_seconds=0
+--- PASS: TestDemoRateBurstUsesRealLimiterAndFixedCap (0.01s)
+=== RUN   TestUpstreamFailureMapping
+=== RUN   TestUpstreamFailureMapping/disconnect
+=== RUN   TestUpstreamFailureMapping/response-header-timeout
+=== RUN   TestUpstreamFailureMapping/request-deadline
+--- PASS: TestUpstreamFailureMapping (0.17s)
+    --- PASS: TestUpstreamFailureMapping/disconnect (0.00s)
+    --- PASS: TestUpstreamFailureMapping/response-header-timeout (0.08s)
+    --- PASS: TestUpstreamFailureMapping/request-deadline (0.08s)
+=== RUN   TestUpstreamStatusAndRedirectPreserved
+--- PASS: TestUpstreamStatusAndRedirectPreserved (0.00s)
+=== RUN   TestUpstreamTLSVerification
+2026/10/28 01:38:26 http: TLS handshake error from 127.0.0.1:64781: remote error: tls: bad certificate
+--- PASS: TestUpstreamTLSVerification (0.04s)
+=== RUN   TestSharedConnectionBudgetAndReuse
+--- PASS: TestSharedConnectionBudgetAndReuse (0.08s)
+=== RUN   TestUpstreamResponseHeaderBudget
+--- PASS: TestUpstreamResponseHeaderBudget (0.00s)
+=== RUN   TestPostIsNotRetriedAfterUpstreamDisconnect
+--- PASS: TestPostIsNotRetriedAfterUpstreamDisconnect (0.00s)
+=== RUN   TestForwardingAndStaticRoutes
+=== RUN   TestForwardingAndStaticRoutes/one/GET
+=== RUN   TestForwardingAndStaticRoutes/one/HEAD
+=== RUN   TestForwardingAndStaticRoutes/one/POST
+=== RUN   TestForwardingAndStaticRoutes/one/PUT
+=== RUN   TestForwardingAndStaticRoutes/one/PATCH
+=== RUN   TestForwardingAndStaticRoutes/one/DELETE
+=== RUN   TestForwardingAndStaticRoutes/one/OPTIONS
+=== RUN   TestForwardingAndStaticRoutes/two/GET
+=== RUN   TestForwardingAndStaticRoutes/two/HEAD
+=== RUN   TestForwardingAndStaticRoutes/two/POST
+=== RUN   TestForwardingAndStaticRoutes/two/PUT
+=== RUN   TestForwardingAndStaticRoutes/two/PATCH
+=== RUN   TestForwardingAndStaticRoutes/two/DELETE
+=== RUN   TestForwardingAndStaticRoutes/two/OPTIONS
+--- PASS: TestForwardingAndStaticRoutes (0.01s)
+    --- PASS: TestForwardingAndStaticRoutes/one/GET (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/HEAD (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/POST (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/PUT (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/PATCH (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/DELETE (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/OPTIONS (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/GET (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/HEAD (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/POST (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/PUT (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/PATCH (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/DELETE (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/OPTIONS (0.00s)
+=== RUN   TestForwardingTrustAndHopHeaders
+--- PASS: TestForwardingTrustAndHopHeaders (0.00s)
+=== RUN   TestActualTLSForwardingProto
+2026/10/28 01:38:26 INFO request complete request_id=48acb2079f9a4b2798dde01f9f95b775 route=one status=200 duration_seconds=0.0005188
+--- PASS: TestActualTLSForwardingProto (0.00s)
+=== RUN   TestRouteBoundariesAndMalformedInputs
+=== RUN   TestRouteBoundariesAndMalformedInputs//one
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/
+=== RUN   TestRouteBoundariesAndMalformedInputs//two/a%20b?x=%2F
+=== RUN   TestRouteBoundariesAndMalformedInputs//
+=== RUN   TestRouteBoundariesAndMalformedInputs//oneevil
+=== RUN   TestRouteBoundariesAndMalformedInputs//unknown
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/../two
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/%2e%2e/two
+=== RUN   TestRouteBoundariesAndMalformedInputs//one//x
+=== RUN   TestRouteBoundariesAndMalformedInputs//one%2Fx
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/x%5cy
+=== RUN   TestRouteBoundariesAndMalformedInputs//%6fne/x
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/%00
+=== RUN   TestRouteBoundariesAndMalformedInputs//one?x=%zz
+=== RUN   TestRouteBoundariesAndMalformedInputs//one?x=1;y=2
+--- PASS: TestRouteBoundariesAndMalformedInputs (0.01s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/ (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//two/a%20b?x=%2F (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs// (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//oneevil (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//unknown (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/../two (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/%2e%2e/two (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one//x (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one%2Fx (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/x%5cy (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//%6fne/x (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/%00 (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one?x=%zz (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one?x=1;y=2 (0.00s)
+=== RUN   TestRejectsUpgradeAndAbsoluteTarget
+--- PASS: TestRejectsUpgradeAndAbsoluteTarget (0.00s)
+=== RUN   TestRejectsInvalidOperatorTargets
+--- PASS: TestRejectsInvalidOperatorTargets (0.00s)
+=== RUN   TestRequestTrailersExplicitlyUnsupported
+--- PASS: TestRequestTrailersExplicitlyUnsupported (0.00s)
+=== RUN   TestMetricsAndRequestID
+2026/10/28 01:38:26 INFO request complete request_id=chosen-request-0001 route=one status=204 duration_seconds=0.0005287
+2026/10/28 01:38:26 INFO request complete request_id=chosen-request-0002 route=one status=204 duration_seconds=0
+--- PASS: TestMetricsAndRequestID (0.00s)
+=== RUN   TestRequestIDSanitizesClientValue
+2026/10/28 01:38:26 WARN upstream request failed route=/one status=502
+2026/10/28 01:38:26 INFO request complete request_id=7f5112e3cc81f10853625814b48ef69a route=one status=502 duration_seconds=0
+--- PASS: TestRequestIDSanitizesClientValue (0.00s)
+=== RUN   TestMetricsHistogramCountsBeyondLargestBucket
+2026/10/28 01:38:26 INFO request complete request_id=818079a359c24cfc58e38732f00918c2 route=one status=204 duration_seconds=0.5106475
+--- PASS: TestMetricsHistogramCountsBeyondLargestBucket (0.51s)
+=== RUN   TestRealRedisOutageReloadReadinessAndRecovery
+    redis_reload_test.go:191: real Redis: required/policy readiness, fail-open/closed requests, restore without restart, quota retained across reload and health probes; final quota rejection 429
+--- PASS: TestRealRedisOutageReloadReadinessAndRecovery (0.02s)
+=== RUN   TestReloadDuringConcurrentLongStreams
+    reload_test.go:145: 16 old streams completed across 21 valid swaps; new traffic used new target; invalid candidate retained last good version; restoration passed
+--- PASS: TestReloadDuringConcurrentLongStreams (0.02s)
+=== RUN   TestReloadRetainsSelectedAdmissionPolicy
+--- PASS: TestReloadRetainsSelectedAdmissionPolicy (0.00s)
+=== RUN   TestReloadKeepsOldTargetBeforeRedisCompletes
+--- PASS: TestReloadKeepsOldTargetBeforeRedisCompletes (0.00s)
+=== RUN   TestReloadPreservesCircuitsForRetainedOrigins
+--- PASS: TestReloadPreservesCircuitsForRetainedOrigins (0.00s)
+=== RUN   TestConcurrentReloadWritersAndNoop
+--- PASS: TestConcurrentReloadWritersAndNoop (0.00s)
+=== RUN   TestStreamingUpload
+--- PASS: TestStreamingUpload (0.00s)
+=== RUN   TestStreamingResponse
+--- PASS: TestStreamingResponse (0.00s)
+=== RUN   TestEarlyResponseWithoutDrainingUpload
+--- PASS: TestEarlyResponseWithoutDrainingUpload (0.50s)
+=== RUN   TestRejectsBeforeApplicationBodyRead
+2026/10/28 01:38:27 INFO request complete request_id=cf723cf6d750cef2a8ade87d9b1fc23d route=unmatched status=404 duration_seconds=0
+2026/10/28 01:38:27 INFO request complete request_id=457894dc7d3e2a47f0340c2f0cc9b74d route=one status=405 duration_seconds=0
+2026/10/28 01:38:27 INFO request complete request_id=6969341cb3c8569a75d071c75412f885 route=one status=400 duration_seconds=0
+--- PASS: TestRejectsBeforeApplicationBodyRead (0.00s)
+=== RUN   TestClientCancellationReachesUpstream
+--- PASS: TestClientCancellationReachesUpstream (0.00s)
+=== RUN   TestStreamDisconnectAbortsResponse
+--- PASS: TestStreamDisconnectAbortsResponse (0.00s)
+=== RUN   TestResponseDeadlineAfterHeadersAbortsStream
+--- PASS: TestResponseDeadlineAfterHeadersAbortsStream (0.25s)
+=== RUN   TestRejectedUploadRespondsWithoutWaitingForBody
+2026/10/28 01:38:27 INFO request complete request_id=4b8ddc42bf3bad74f67729aa37663fbd route=unmatched status=404 duration_seconds=0
+--- PASS: TestRejectedUploadRespondsWithoutWaitingForBody (0.50s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/gateway	4.326s
+=== RUN   TestRedisReadinessModesAndRestoration
+--- PASS: TestRedisReadinessModesAndRestoration (0.01s)
+=== RUN   TestReadinessHealthDeadlineAndMissingProbe
+--- PASS: TestReadinessHealthDeadlineAndMissingProbe (0.02s)
+=== RUN   TestDrainWinsOverInProgressReadinessProbe
+--- PASS: TestDrainWinsOverInProgressReadinessProbe (0.00s)
+=== RUN   TestHealthReadinessAndGracefulDrain
+--- PASS: TestHealthReadinessAndGracefulDrain (0.00s)
+=== RUN   TestShutdownDeadlineCancelsActiveUpstream
+--- PASS: TestShutdownDeadlineCancelsActiveUpstream (0.05s)
+=== RUN   TestMetricsBearerAuthDoesNotProtectHealth
+--- PASS: TestMetricsBearerAuthDoesNotProtectHealth (0.00s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/server	1.687s
+=== RUN   TestPeerIdentity
+--- PASS: TestPeerIdentity (0.00s)
+=== RUN   TestInvalidLimiterConfiguration
+--- PASS: TestInvalidLimiterConfiguration (0.00s)
+=== RUN   TestRedisBoundaries
+    redis_test.go:92: real Redis: boundary, decay rounding, TTL, idle gap and rollback checks passed
+--- PASS: TestRedisBoundaries (0.09s)
+=== RUN   TestRedisServerTimeContentionAndCapacity
+    redis_test.go:143: real Redis concurrent admissions=20/80; server-time expiry and identity cap verified
+--- PASS: TestRedisServerTimeContentionAndCapacity (0.05s)
+=== RUN   TestRedisLatencyBudget
+    redis_test.go:175: stalled Redis admission returned in 30.3621ms (30ms configured; 250ms scheduling tolerance)
+--- PASS: TestRedisLatencyBudget (0.03s)
+=== RUN   TestRedisExpiryAndCapacityRecovery
+--- PASS: TestRedisExpiryAndCapacityRecovery (2.11s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/ratelimit	3.285s

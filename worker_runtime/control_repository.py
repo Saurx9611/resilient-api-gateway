@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import threading
 import uuid
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -27,6 +28,8 @@ class ControlRepository:
             raise ValueError("database pool bounds must satisfy 1 <= min <= max <= 32")
         self.dsn = dsn
         self.pool_max_size = pool_max_size
+        self._pool_lock = threading.Lock()
+        self._pool_open = False
         schema = os.environ.get("WORKER_DB_SCHEMA", "")
         options = "-c statement_timeout=3000 -c lock_timeout=1000"
         if schema:
@@ -35,14 +38,24 @@ class ControlRepository:
             options += f" -c search_path={schema},public"
         self.pool = ConnectionPool(
             conninfo=dsn, min_size=pool_min_size, max_size=pool_max_size,
-            timeout=1.0, open=True,
+            timeout=1.0, open=False,
             kwargs={"connect_timeout": 2, "application_name": "chronos-control-api", "options": options, "row_factory": dict_row},
         )
 
     def close(self) -> None:
-        self.pool.close()
+        if self._pool_open:
+            self.pool.close()
+
+    def _ensure_pool_open(self) -> None:
+        if self._pool_open:
+            return
+        with self._pool_lock:
+            if not self._pool_open:
+                self.pool.open(wait=False)
+                self._pool_open = True
 
     def pool_stats(self) -> dict[str, int]:
+        self._ensure_pool_open()
         stats = self.pool.get_stats()
         return {key: int(stats.get(key, 0)) for key in ("pool_size", "pool_available", "requests_waiting", "requests_queued", "requests_wait_ms")} | {"pool_max_size": self.pool_max_size}
 
@@ -67,6 +80,7 @@ class ControlRepository:
     @contextmanager
     def _transaction(self) -> Iterator[psycopg.Connection]:
         try:
+            self._ensure_pool_open()
             with self.pool.connection(timeout=1.0) as conn:
                 with conn.transaction():
                     yield conn
@@ -76,6 +90,22 @@ class ControlRepository:
             state = exc.sqlstate or "no_sqlstate"
             retryable = isinstance(exc, (psycopg.OperationalError, psycopg.InterfaceError)) or state.startswith(("08", "40")) or state in {"55P03", "57014", "57P01", "57P02", "57P03"}
             raise DatabaseUnavailable(f"{type(exc).__name__}:{state}", retryable=retryable) from None
+
+    @contextmanager
+    def _worker_repository(self, name: str) -> Iterator[Repository]:
+        """Adapt worker repository operations to the same bounded API pool."""
+        try:
+            self._ensure_pool_open()
+            with self.pool.connection(timeout=1.0) as conn:
+                repo = Repository(self.dsn, uuid.uuid4(), name, 1)
+                repo.conn = conn
+                try:
+                    yield repo
+                finally:
+                    # The pool owns this connection; do not close it on success.
+                    repo.conn = None
+        except PoolTimeout:
+            raise DatabaseUnavailable("DatabasePoolTimeout", retryable=True) from None
 
     def check_schema(self) -> None:
         with self._transaction() as conn:
@@ -103,15 +133,12 @@ class ControlRepository:
     def enqueue(self, *, job_type: str, payload: dict[str, Any], max_attempts: int,
                 max_runtime_seconds: int, available_at: datetime | None, priority: int,
                 idempotency_key: str | None, submitted_by: str, request_fingerprint: str) -> int:
-        repo = Repository(self.dsn, uuid.uuid4(), "api-submitter", 1)
-        try:
+        with self._worker_repository("api-submitter") as repo:
             return repo.enqueue(job_type, payload, max_attempts,
                                 max_runtime_seconds=max_runtime_seconds,
                                 idempotency_key=idempotency_key, available_at=available_at,
                                 priority=priority, submitted_by=submitted_by,
                                 request_fingerprint=request_fingerprint)
-        finally:
-            repo.close()
 
     def job(self, job_id: int) -> dict[str, Any] | None:
         with self._transaction() as conn:
@@ -186,20 +213,14 @@ class ControlRepository:
             return {"state": row["state"], "cancel_requested": row["cancel_requested_at"] is not None}
 
     def retry(self, job_id: int, reason: str) -> bool:
-        repo = Repository(self.dsn, uuid.uuid4(), "api-operator", 1)
-        try:
+        with self._worker_repository("api-operator") as repo:
             return repo.retry_dead(job_id, reason)
-        finally:
-            repo.close()
 
     def replay(self, job_id: int, reason: str, *, idempotency_key: str | None = None,
                request_fingerprint: str | None = None) -> int | None:
-        repo = Repository(self.dsn, uuid.uuid4(), "api-operator", 1)
-        try:
+        with self._worker_repository("api-operator") as repo:
             return repo.replay(job_id, reason, idempotency_key=idempotency_key,
                                request_fingerprint=request_fingerprint)
-        finally:
-            repo.close()
 
     def workers(self, stale_after_seconds: int) -> list[dict[str, Any]]:
         if not 1 <= stale_after_seconds <= 3600:
@@ -297,7 +318,7 @@ class ControlRepository:
             rate = (totals["failed"] / terminal * 100.0) if terminal else None
             operations = conn.execute(
                 """WITH job_states AS (
-                       SELECT count(*) FILTER (WHERE state='queued' AND available_at<=clock_timestamp()) AS pending,
+                       SELECT count(*) FILTER (WHERE state='queued') AS pending,
                               count(*) FILTER (WHERE state='running') AS running,
                               count(*) FILTER (WHERE state='succeeded') AS completed,
                               count(*) FILTER (WHERE state='dead') AS failed,
@@ -331,25 +352,33 @@ class ControlRepository:
                        SELECT job_id,generation,attempt,occurred_at FROM worker_job_events
                        WHERE event_type IN ('claimed','lease_reclaimed') AND occurred_at>=clock_timestamp()-(%s*interval '1 hour')
                    ), starts AS (
-                       SELECT job_id,generation,attempt,occurred_at FROM worker_job_events
+                       SELECT job_id,generation,attempt,occurred_at,details FROM worker_job_events
                        WHERE event_type='started' AND occurred_at>=clock_timestamp()-(%s*interval '1 hour')
                    ), ends AS (
                        SELECT job_id,generation,attempt,occurred_at FROM worker_job_events
                        WHERE event_type IN ('succeeded','retry_scheduled','timed_out','permanent_failure','abandoned')
                          AND occurred_at>=clock_timestamp()-(%s*interval '1 hour')
+                   ), enqueued AS (
+                       SELECT job_id,occurred_at FROM worker_job_events
+                       WHERE event_type='enqueued' AND occurred_at>=clock_timestamp()-(%s*interval '1 hour')
                    ), samples AS (
-                       SELECT extract(epoch FROM (s.occurred_at-c.occurred_at))*1000 AS queue_ms,
+                       SELECT s.details,
+                              extract(epoch FROM (s.occurred_at-q.occurred_at))*1000 AS queue_ms,
                               extract(epoch FROM (e.occurred_at-s.occurred_at))*1000 AS execution_ms
                        FROM starts s JOIN claims c USING(job_id,generation,attempt)
-                       JOIN ends e USING(job_id,generation,attempt) WHERE e.occurred_at>=s.occurred_at AND s.occurred_at>=c.occurred_at
+                       JOIN enqueued q USING(job_id)
+                       JOIN ends e USING(job_id,generation,attempt) WHERE e.occurred_at>=s.occurred_at AND s.occurred_at>=q.occurred_at
                    ) SELECT count(*) AS samples,
                        percentile_cont(0.50) WITHIN GROUP(ORDER BY queue_ms) AS queue_p50_ms,
                        percentile_cont(0.95) WITHIN GROUP(ORDER BY queue_ms) AS queue_p95_ms,
                        percentile_cont(0.99) WITHIN GROUP(ORDER BY queue_ms) AS queue_p99_ms,
                        percentile_cont(0.50) WITHIN GROUP(ORDER BY execution_ms) AS execution_p50_ms,
                        percentile_cont(0.95) WITHIN GROUP(ORDER BY execution_ms) AS execution_p95_ms,
-                       percentile_cont(0.99) WITHIN GROUP(ORDER BY execution_ms) AS execution_p99_ms
-                   FROM samples""", (hours, hours, hours)
+                       percentile_cont(0.99) WITHIN GROUP(ORDER BY execution_ms) AS execution_p99_ms,
+                       percentile_cont(0.50) WITHIN GROUP(ORDER BY (details->>'claim_latency_seconds')::double precision)*1000 AS claim_p50_ms,
+                       percentile_cont(0.95) WITHIN GROUP(ORDER BY (details->>'claim_latency_seconds')::double precision)*1000 AS claim_p95_ms,
+                       percentile_cont(0.99) WITHIN GROUP(ORDER BY (details->>'claim_latency_seconds')::double precision)*1000 AS claim_p99_ms
+                   FROM samples""", (hours, hours, hours, hours)
             ).fetchone()
             operations.update(timing)
             operations["window_hours"] = hours

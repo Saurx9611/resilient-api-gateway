@@ -235,7 +235,6 @@ class Worker:
             if job is None:
                 break
             claimed_count += 1
-            self.metrics.observe_queue(job.job_type, job.queue_wait_seconds)
             if job.recovered:
                 self.metrics.expired.inc()
                 self.metrics.recovered.inc()
@@ -255,7 +254,8 @@ class Worker:
                 continue
             send.close()
             try:
-                if not self.repo.mark_started(job):
+                queue_wait = self.repo.mark_started(job, claim_latency_seconds=claim_duration)
+                if queue_wait is None:
                     self._terminate(ActiveJob(job, process, receive, now, now, runtime_timeout, now))
                     emit("job.lease_lost", level="warning", worker_id=str(self.worker_id), job_id=job.id,
                          attempt=job.attempts, generation=job.generation)
@@ -264,19 +264,22 @@ class Worker:
                 self._terminate(ActiveJob(job, process, receive, now, now, runtime_timeout, now))
                 raise
             handler_started = time.monotonic()
+            self.metrics.observe_queue(job.job_type, queue_wait)
             active = ActiveJob(job, process, receive, handler_started,
                                handler_started + max(0.1, self.lease_seconds / 3), runtime_timeout, handler_started)
             self._active[job.id] = active
             emit("job.started", worker_id=str(self.worker_id), job_id=job.id, job_type=job.job_type,
-                 attempt=job.attempts, generation=job.generation, runtime_timeout=runtime_timeout)
+                 attempt=job.attempts, generation=job.generation, runtime_timeout=runtime_timeout,
+                 queue_wait_ms=round(queue_wait * 1000, 3), claim_duration_ms=round(claim_duration * 1000, 4))
 
         self.metrics.claim_batch.observe(claimed_count)
         self.metrics.set_activity(len(self._active), self.concurrency)
 
     def _record_result(self, job: Job, result: dict[str, Any]) -> None:
         active = self._active.get(job.id)
+        execution_duration = None if active is None else time.monotonic() - active.execution_started_at
         if active is not None:
-            self.metrics.observe_execution(job.job_type, time.monotonic() - active.execution_started_at)
+            self.metrics.observe_execution(job.job_type, execution_duration)
         if result.get("ok") is True:
             if job.job_type == "notification_simulation":
                 effect_applied = self.repo.record_notification_effect(job, result["result"])
@@ -294,7 +297,8 @@ class Worker:
             _test_pause("BEFORE_ACK")
             if self.repo.succeed(job, result["result"]):
                 self.metrics.outcome(job.job_type, "succeeded")
-                emit("job.succeeded", worker_id=str(self.worker_id), job_id=job.id, job_type=job.job_type, attempt=job.attempts)
+                emit("job.succeeded", worker_id=str(self.worker_id), job_id=job.id, job_type=job.job_type,
+                     attempt=job.attempts, execution_duration_ms=round(execution_duration * 1000, 3) if execution_duration is not None else None)
             else:
                 if self.repo.acknowledge_cancel(job):
                     emit("job.canceled", worker_id=str(self.worker_id), job_id=job.id,
@@ -310,9 +314,9 @@ class Worker:
             self.metrics.outcome(job.job_type, outcome)
             if retryable:
                 self.metrics.retries.labels(outcome="retry" if job.attempts < job.max_attempts else "dead").inc()
-            if retryable:
-                self.metrics.retries.labels(outcome="retry" if job.attempts < job.max_attempts else "dead").inc()
-            emit("job.failed", level="warning", worker_id=str(self.worker_id), job_id=job.id, job_type=job.job_type, attempt=job.attempts, error_code=error_code, retryable=retryable)
+            emit("job.failed", level="warning", worker_id=str(self.worker_id), job_id=job.id, job_type=job.job_type,
+                 attempt=job.attempts, error_code=error_code, retryable=retryable,
+                 execution_duration_ms=round(execution_duration * 1000, 3) if execution_duration is not None else None)
         else:
             emit("job.lease_lost", level="warning", worker_id=str(self.worker_id), job_id=job.id, attempt=job.attempts)
 

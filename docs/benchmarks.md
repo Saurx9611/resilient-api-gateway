@@ -19,7 +19,7 @@ primes a one-request quota before measuring 429s, and starts a separate circuit
 process with one controlled 500 trigger before measuring open-state 503s. The
 trigger/warmup are excluded from measured counts. Per scenario output includes
 wall duration, achieved requests/s, status counts, unexpected-status percentage,
-and nearest-index p50/p95/p99 sample latency. Every request has a 4s timeout and
+and nearest-rank p50/p95/p99 sample latency. Every request has a 4s timeout and
 HTTP/1.1 connections are reused per worker thread.
 
 ## Captured run (2026-10-27)
@@ -33,10 +33,10 @@ The raw report holds exact duration and percentile values. Summary:
 
 | Workload | Requests | Duration | Statuses | Errors | p50 / p95 / p99 (ms) |
 |---|---:|---:|---|---:|---:|
-| Direct upstream | 100 | 0.147485 s | 100×200 | 0% | 1.342 / 13.998 / 22.690 |
-| Through gateway | 100 | 0.218732 s | 100×200 | 0% | 3.081 / 10.890 / 20.186 |
-| Rate-limited | 40 | 0.071720 s | 40×429 | 0% | 2.212 / 6.048 / 19.058 |
-| Circuit open | 40 | 0.098473 s | 40×503 | 0% | 2.151 / 22.806 / 25.527 |
+| Direct upstream | 100 | 0.134599 s | 100×200 | 0% | 1.551 / 2.510 / 22.444 |
+| Through gateway | 100 | 0.186078 s | 100×200 | 0% | 3.386 / 5.082 / 7.705 |
+| Rate-limited | 40 | 0.073719 s | 40×429 | 0% | 2.659 / 3.155 / 28.709 |
+| Circuit open | 40 | 0.143284 s | 40×503 | 0% | 2.164 / 22.001 / 26.409 |
 
 The two successful scenarios are broadly comparable in setup, but this is a
 single short, noisy run: separate fixture scheduling and Python client overhead

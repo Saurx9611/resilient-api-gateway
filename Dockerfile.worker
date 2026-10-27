@@ -1,8 +1,13 @@
 FROM python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app
-COPY requirements.txt ./
-RUN pip install --no-cache-dir --requirement requirements.txt
+ARG INSTALL_TEST_DEPENDENCIES=0
+COPY requirements.txt requirements-test.txt ./
+RUN if [ "$INSTALL_TEST_DEPENDENCIES" = "1" ]; then \
+      pip install --no-cache-dir --requirement requirements-test.txt; \
+    else \
+      pip install --no-cache-dir --requirement requirements.txt; \
+    fi
 COPY worker_runtime ./worker_runtime
 RUN groupadd --gid 10001 worker && useradd --uid 10001 --gid worker --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin worker
 USER 10001:10001

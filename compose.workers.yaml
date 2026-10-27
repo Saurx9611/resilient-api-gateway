@@ -225,6 +225,11 @@ services:
 
   tests:
     <<: *worker
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+      args:
+        INSTALL_TEST_DEPENDENCIES: "1"
     profiles: [test]
     environment:
       WORKER_DATABASE_URL: postgresql://gateway:dev-only-local@postgres:5432/gateway_test

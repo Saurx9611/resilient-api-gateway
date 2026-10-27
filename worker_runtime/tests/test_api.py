@@ -255,7 +255,7 @@ class ControlAPIIntegrationTests(unittest.TestCase):
         repo.register()
         claim = repo.claim(10)
         self.assertEqual(job_id, claim.id)
-        self.assertTrue(repo.mark_started(claim))
+        self.assertTrue(repo.mark_started(claim, claim_latency_seconds=0.012))
         self.assertTrue(repo.succeed(claim, {"ok": True}))
         repo.close()
 
@@ -269,6 +269,7 @@ class ControlAPIIntegrationTests(unittest.TestCase):
         self.assertGreaterEqual(document["operations"]["completed"], 1)
         self.assertEqual(24, document["operations"]["window_hours"])
         self.assertIsNotNone(document["operations"]["execution_p50_ms"])
+        self.assertAlmostEqual(12.0, document["operations"]["claim_p50_ms"], delta=0.1)
         self.assertEqual(422, self.client.get("/v1/observability?hours=48", headers=self.reader).status_code)
         events = self.client.get("/v1/events?limit=3", headers=self.reader)
         self.assertEqual(200, events.status_code)
@@ -280,6 +281,8 @@ class ControlAPIIntegrationTests(unittest.TestCase):
         self.assertEqual(200, response.status_code)
         self.assertIn("text/plain", response.headers["content-type"])
         self.assertIn("chronos_api_db_pool_connections", response.text)
+        self.assertIn('chronos_jobs{state="queued"}', response.text)
+        self.assertIn('chronos_workers{state="idle"}', response.text)
         self.assertNotIn("job_id", response.text)
 
     def test_queue_policy_is_authorized_bounded_and_used_for_defaults(self) -> None:

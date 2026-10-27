@@ -1,0 +1,78 @@
+{
+  "status": "measured",
+  "worker_processes": 16,
+  "worker_concurrency_each": 1,
+  "queue_depth": 50,
+  "jobs": 50,
+  "handler": "synthetic_report with empty records; fixed spawned allowlisted handler",
+  "elapsed_seconds": 11.456203600000663,
+  "throughput_jobs_per_second": 4.364447573190573,
+  "latency_ms": {
+    "queue_wait": {
+      "samples": 50,
+      "p50_ms": 3811.059,
+      "p95_ms": 9001.79825,
+      "p99_ms": 9317.477309999998
+    },
+    "execution": {
+      "samples": 50,
+      "p50_ms": 3288.717,
+      "p95_ms": 4706.628549999999,
+      "p99_ms": 5410.235559999998
+    },
+    "claim": {
+      "samples": 49,
+      "p50_ms": 23.1495,
+      "p95_ms": 61.040179999999964,
+      "p99_ms": 107.27366399999977
+    }
+  },
+  "error_rate": 0.0,
+  "final_states": {
+    "succeeded": 50
+  },
+  "database_connections": {
+    "total": 17,
+    "workers": 16,
+    "benchmark_clients": 1
+  },
+  "postgresql": {
+    "version": "16.15",
+    "max_connections": "100",
+    "shared_buffers": "128MB",
+    "work_mem": "4MB",
+    "synchronous_commit": "on"
+  },
+  "table_statistics": [
+    {
+      "relname": "worker_job_events",
+      "n_live_tup": 206,
+      "n_dead_tup": 0,
+      "seq_scan": 103,
+      "idx_scan": 320
+    },
+    {
+      "relname": "worker_jobs",
+      "n_live_tup": 50,
+      "n_dead_tup": 104,
+      "seq_scan": 18235,
+      "idx_scan": 26141
+    }
+  ],
+  "timestamp_utc": "2026-10-27T19:36:21.209739+00:00",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.7",
+    "host_cpu_count": 12,
+    "docker_cpu_count": 12,
+    "docker_memory_mib": 7606,
+    "worker_cpu_limit": 1,
+    "worker_memory_limit_mib": 256,
+    "postgres_cpu_limit": 2,
+    "postgres_memory_limit_mib": 512
+  },
+  "postgresql_resource_limits": {
+    "cpu": 2,
+    "memory_mib": 512
+  }
+}

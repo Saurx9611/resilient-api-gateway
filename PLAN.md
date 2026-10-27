@@ -1,6 +1,6 @@
 # Resilient API Gateway — Engineering Execution Plan
 
-> Status: Gateway Phases 0–6 are implemented and locally tested, including snapshot reload, Redis-aware readiness, real Redis and native process checks. Worker companion Phases 3–6 are implemented and tested with isolated PostgreSQL Compose, including the live dashboard journey. Full gateway Compose execution and hosted CI remain unverified. No performance or production-readiness claims are established.
+> Status: Gateway Phases 0–6 and worker companion Phases 3–7 are implemented and locally tested. Gateway and worker Compose smoke, real-Redis Go integration, and real-PostgreSQL worker integration passed during release review. Worker observability and benchmark results are single-host local evidence only, not capacity or production-readiness claims. Hosted CI and deployment remain unverified.
 
 ## 0. Product definition
 Build an observable, fault-tolerant Go HTTP reverse proxy demonstrating distributed admission control, per-upstream circuit breaking, connection management, safe dynamic routes, and reproducible performance/chaos testing. Deliver a safe public demo and a recruiter-readable repository. Not intended to replace Envoy, Kong, or a managed production gateway.
@@ -203,9 +203,10 @@ uses a demonstration token and loopback port; deployment needs managed secrets,
 TLS/authenticated ingress, database policy, retention, and operational monitoring.
 No exactly-once or production-readiness claim is made.
 
-Phase 6 (dashboard) is completed below. Exact next worker-companion prompt:
+Phase 7 (worker observability and performance) is completed below. Exact next
+worker-companion prompt:
 > Read AGENTS.md, PLAN.md, relevant code/tests and ADRs. Implement only Worker
-> companion Phase 7: define bounded retention and cleanup for completed jobs,
+> companion Phase 8: define bounded retention and cleanup for completed jobs,
 > attempt events, schedule occurrences and API rate-limit rows while preserving
 > idempotency, audit requirements and active/replay references. Write the
 > Necessity Decision first; add real-PostgreSQL tests for retention cutoffs,
@@ -262,6 +263,57 @@ bounded. Polling can create repeated read load at larger operator fleet sizes.
 Frontend tests cover primary workflows and a baseline axe scan on two screens,
 not a full assistive-technology audit. Hosted CI and deployment security remain
 unverified. No production-readiness claim is made.
+
+### Phase 7 — Worker observability and performance engineering (worker companion)
+- [x] Export Prometheus-compatible worker/API metrics with bounded labels and structured lifecycle logs; expose authenticated operational summaries through the existing UI.
+- [x] Record claim batch/latency, queue wait, execution distributions, worker activity, queue states, retries, dead letters, lease recovery and DB pool usage without job IDs as metric labels.
+- [x] Provision an optional local Prometheus/Grafana dashboard; keep scrape ports private to the Compose network and UI summaries authenticated.
+- [x] Capture EXPLAIN ANALYZE/BUFFERS plus PostgreSQL table/index statistics for the claim query.
+- [x] Run before/after matrix at 1,2,4,8,16 worker processes and queue depths 20,50,100; save raw JSON, CSV, plot script and SVG report.
+- [x] Apply only the queue candidate split justified by the observed plan; rerun the plan and same benchmark matrix.
+
+Observed evidence (2026-10-28, Windows 11 amd64 / Python 3.14.7 / Docker Desktop
+12 CPUs and 7,606 MiB; PostgreSQL 16.15 limited to 2 CPU/512 MiB; workers each
+1 CPU/256 MiB): full real-PostgreSQL Compose suite passed **53/53** in 84.667s
+after the release-review fixes. All 15 before and all 15 after benchmark combinations
+at depths 20/50/100 and 1/2/4/8/16 workers ran with zero job errors. At 100 jobs,
+throughput before→after was 1.581→1.605, 2.600→2.742, 3.587→4.574, 4.662→4.956,
+and 4.690→7.020 jobs/s respectively. Claim p95 at 16 workers was 144.331→54.982ms.
+This is one local matrix and not a capacity claim. Raw data is in
+`benchmarks/worker/raw/{before,after}/`; the generated plot is
+`benchmarks/worker/throughput.svg`; report and exact resource/config details are
+in `benchmarks/worker/BENCHMARKS.md`. On a 10,000-ready-job local fixture, the
+claim candidate-selector plan changed from 4.019ms/183 shared buffer hits to
+0.105ms/5 hits (the EXPLAIN capture does not include the subsequent row update
+and lifecycle insert);
+raw `queue-claim-explain-{before,after}.json`. The local Prometheus API and all
+three worker scrape targets were healthy; Grafana 12.1.0 `/api/health` returned
+database ok and version 12.1.0, and authenticated Grafana search found the
+provisioned `Chronos Workers` dashboard. Initial all-profile startup encountered the
+pre-existing host port 3000 dashboard binding, then Prometheus/Grafana were
+started and checked independently; all project containers/volumes were removed.
+`python -m compileall`, Compose config validation, frontend lint and production
+build passed. `go test ./...` was attempted but Go is unavailable on this host;
+no Go source was changed. Raw SQL plans are single warm local observations.
+
+Necessary choices and rejected complexity: ADR-015 records the decision to use
+bounded Prometheus dimensions, persisted `started` events, a bounded control API
+connection pool, and an isolated local benchmark. The UI derives operational
+summaries from PostgreSQL and requires API auth. No IDs or worker UUIDs become
+metric labels. A two-branch claim query is worthwhile based on the measured scan
+and sort; it may briefly lock one unselected candidate. No telemetry database,
+SSE broker, per-job metrics, renewal event stream, broad queue rewrite, fake
+percentiles, or benchmark framework was added.
+
+Remaining risks: benchmarks are single-run, synthetic, single-host experiments;
+there are no confidence intervals, realistic CPU-heavy handlers, or load tests
+for event-derived API summaries. Worker metrics reset on process restart and
+Prometheus/Grafana are demo-only optional services; production auth, TLS, storage,
+retention, alerting, and capacity remain deployment work. API pool configuration
+is bounded but saturation queues callers. Claim split locking behavior should be
+revisited under larger mixed queued/expired workloads. Go regression suite could
+not run because the Go executable is absent. No exactly-once or production
+performance guarantee is made.
 
 ### Go gateway per-upstream circuit breaker — current Phase 3 request (previously numbered Phase 4)
 - [x] Implement explicit FSM + deterministic clock injectable for tests.
@@ -352,6 +404,50 @@ Exact next-phase prompt:
 > topology, then run the bounded public dashboard smoke cases from
 > `docs/deployment.md`. Record UTC time, exact URLs, responses, observed state,
 > plan limits and actual cost. Do not expose the gateway or metrics publicly.
+
+### Release-review update (2026-10-28)
+
+This update supersedes the earlier Phase 9 checkpoint note that Redis-backed Go
+tests and local Compose smoke had not run. A dedicated Redis container on
+`127.0.0.1:36379` was used for gateway unit/race and black-box checks; the full
+gateway Compose stack was built and started with `REDIS_PORT=36380`. Gateway,
+Redis, both simulators, and dashboard probes became healthy. Local smoke observed
+200 for `/healthz`, `/readyz`, `/one`, `/two`, dashboard `/` and `/api/healthz`,
+401 for unauthenticated `/metrics`, and 200 with the configured bearer token.
+The worker Compose stack also started PostgreSQL 16.15, three worker processes,
+scheduler, API and dashboard; API health and Swagger returned 200, API and BFF
+returned 401 without bearer auth and 200 with it, and a submitted fixed
+`synthetic_report` reached `succeeded`. Only local URLs were checked.
+
+Final worker test-profile run rebuilt its test-only dependency image and passed
+**53/53 tests in 84.667s** against disposable PostgreSQL. Retry metric review
+found and removed a duplicate counter increment; `test_one_scheduled_retry_increments_counter_once` now verifies the exact count. `httpx2` is imported by
+Starlette's `TestClient`, not application code, so it moved to
+`requirements-test.txt`; the production worker image built with UID/GID 10001
+and an import check confirmed `httpx2` is absent.
+
+Go 1.27.3 commands with `REDIS_TEST_URL=redis://127.0.0.1:36379/0`: `go test
+-count=1 ./...`, `go test -race -count=1 ./...`, and `go vet ./...` passed;
+`go mod tidy -diff` exited 0 with no module changes. Frontend lint and TypeScript
+checks passed, and the Next production build completed during both Compose image
+builds. `scripts/circuit-chaos.py` passed its 10-request fail/open/timeout/
+recovery flow. Gateway benchmark rerun and corrected nearest-rank values are in
+`docs/benchmarks.md` and `docs/verification/phase-5-benchmark.json`. Worker
+matrix/plan artifacts are documented in `benchmarks/worker/BENCHMARKS.md`.
+
+| Claim | Check | Actual observed result | Caveat |
+|---|---|---|---|
+| Gateway request/security/fault regressions pass | Go unit/race suites with real Redis; `release-review-gateway-tests.txt`; circuit chaos script | Forwarding trust, malformed paths, timeout/truncation, Redis policies, bounded metrics, retries and breaker transitions pass; circuit reproduction passed 10/10 steps | Local fixtures and one Redis; not an internet-facing penetration test |
+| Worker API/runtime behavior passes | Worker test Compose profile | 53/53 tests passed in 84.667s; includes API auth, real PostgreSQL, process failure/recovery and retry metric regression | Disposable PostgreSQL and local Docker resources |
+| Container stacks are runnable | Gateway Compose config/build/health/HTTP smoke; worker full-profile Compose smoke | Both stacks started; fixed gateway routes and authenticated metrics behaved as configured; worker dashboard/API served and one job succeeded | Gateway Redis host port 6379 was occupied, so tested run used 36380. All checked URLs were loopback |
+| Local benchmark artifacts reflect measurements | Gateway direct/proxy/fail-fast raw JSON; worker before/after JSON and EXPLAIN plans | Gateway: 100 direct and 100 proxied 200s; 40 expected 429s and 40 expected 503s. Worker matrix: all 30 cases had zero job errors; candidate plan 4.019ms/183 hits before, 0.105ms/5 hits after | Single-host synthetic measurements, one run per case, no production inference; selector EXPLAIN excludes later update/event insert |
+| Hosted release is available | Render/CI credentials and public URL check | Not run; no credentials or deployed service URL | No hosted URL or remote CI result is claimed |
+
+`git diff --check` passed. Working-tree changes unrelated to the retry metric
+fix and test-only dependency split were preserved. Historical Phase 8 transcripts
+remain records of the earlier checkpoint and are superseded for local Redis/
+Compose status by this update. Exact gateway negative-test output is in
+`docs/verification/release-review-gateway-tests.txt`.
 
 ## 4. Intended repository map
 ```

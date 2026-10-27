@@ -41,10 +41,11 @@ private-network requests but cannot receive them, so it can still act as the
 public dashboard/BFF for this topology.
 
 Fly Machines have lower listed US-region compute prices: shared CPU 1x/256 MB
-is $2.19/month and 2x/512 MB is $4.39/month, billed by the second while running;
+is $2.19/month and 2x/512 MB is $4.39/month in listed US regions, billed by
+the second while running. Rates vary by region and current organization pricing;
 storage and egress are separate. Fly has private 6PN networking, but Redis and
 public HTTPS ingress would need separate setup/validation. Upstash's Redis free
-tier lists 250 MB and 500K commands/month; pay-as-you-go lists $0.20 per 100K
+tier lists 256 MB and 500K commands/month; pay-as-you-go lists $0.20 per 100K
 commands, and TLS is always enabled. The gateway issues one Lua EVAL per
 admission, so estimate command volume before choosing the free tier. Source:
 [Fly pricing](https://fly.io/pricing/), [Upstash Redis pricing](https://upstash.com/pricing/redis), and [Upstash Redis security](https://upstash.com/docs/redis/features/security). Render is selected
@@ -62,15 +63,16 @@ different random secrets (at least 32 bytes each); do not reuse production
 tokens locally:
 
 ```powershell
-$env:GATEWAY_DEMO_TOKEN = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
-$env:METRICS_BEARER_TOKEN = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+$env:GATEWAY_DEMO_TOKEN = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
+$env:METRICS_BEARER_TOKEN = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
+$env:REDIS_PORT = '36380'
 docker compose config --quiet
 docker compose up --build --wait
 ```
 
 Open `http://127.0.0.1:3000/`. The dashboard (3000), gateway (8080), and Redis
-(6379) are published on loopback only; set `REDIS_PORT=6380` if local Redis is
-already occupied. Redis data is intentionally ephemeral and never shared with
+(6379) are published on loopback only; set `REDIS_PORT` to another free host
+port if local Redis is already occupied. Redis data is intentionally ephemeral and never shared with
 another project. Check:
 
 ```powershell
@@ -130,9 +132,17 @@ application’s 10-second graceful drain.
    previous successful deploy. Keep the verified HTTPS URL here only after those
    checks actually pass.
 
-### Verified URLs
+### Verified URLs and checks
 
-None. The images built and their runtime UIDs/healthchecks were inspected, but
-the Docker Compose plugin is missing, so local orchestration/smoke could not run.
-No provider credentials/deployed URL were supplied. CI is configured to run the
-container smoke tests after push; it has not run remotely from this workspace.
+Local Compose was smoke-tested on 2026-10-28. Dashboard: `http://127.0.0.1:3000`;
+gateway: `http://127.0.0.1:8080`. Gateway `/healthz`, `/readyz`, `/one/release-smoke`,
+and `/two/release-smoke` returned 200; dashboard `/` and `/api/healthz` returned
+200. Gateway `/metrics` returned 401 without a token and 200 with the configured
+bearer token. The stack was stopped after these checks. These are local URLs,
+not hosted deployment evidence.
+
+Hosted verified URLs: none. No provider credentials or deployed address were
+available. CI is configured, but no remote CI run was verified from this
+workspace. The earlier note that the Compose plugin was missing is superseded:
+Compose v5.6.1 was installed in the repo-local tools directory and the stack
+passed the checks above.

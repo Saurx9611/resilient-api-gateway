@@ -56,3 +56,14 @@ the Docker resource budget permits, and `EXPLAIN (ANALYZE, BUFFERS)` on the clai
 selector. Persist the actual environment, PostgreSQL statistics and outputs;
 record failures and skipped worker counts explicitly. No exact-once guarantee is
 made.
+
+## Observed outcome
+
+On the local 10,000-ready-row fixture, the original candidate query used a seq
+scan and sort (4.019ms, 183 shared-buffer hits); the split indexed candidate
+query used 0.105ms and 5 hits. In the one before/after matrix (queue depth 100),
+16-worker throughput moved from 4.690 to 7.020 jobs/s and claim p95 from 144.331
+to 54.982ms. At 1 worker throughput was 1.581 to 1.605 jobs/s. Every observed
+case had zero job errors. This single local run is noisy and supports the specific
+query plan change; it does not establish general capacity or justify broader
+concurrency tuning. See `benchmarks/worker/BENCHMARKS.md` and its raw artifacts.

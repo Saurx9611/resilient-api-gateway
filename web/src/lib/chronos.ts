@@ -80,6 +80,7 @@ export interface Observability {
     retries_24h: number; recovered_24h: number; expired_leases_24h: number; retry_rate_24h: number | null;
     queue_p50_ms: number | null; queue_p95_ms: number | null; queue_p99_ms: number | null;
     execution_p50_ms: number | null; execution_p95_ms: number | null; execution_p99_ms: number | null;
+    claim_p50_ms: number | null; claim_p95_ms: number | null; claim_p99_ms: number | null;
     samples: number; window_hours: number;
     pool: { pool_size: number; pool_max_size: number; pool_available: number; requests_waiting: number; requests_queued: number; requests_wait_ms: number };
   };

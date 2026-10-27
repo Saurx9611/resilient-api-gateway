@@ -13,13 +13,13 @@ class WorkerMetrics:
         self.registry = CollectorRegistry()
         self.completed = Counter("chronos_jobs_completed_total", "Successfully acknowledged jobs", ("job_type",), registry=self.registry)
         self.failed = Counter("chronos_jobs_failed_total", "Failed handler attempts", ("job_type", "outcome"), registry=self.registry)
-        self.retries = Counter("chronos_job_retries_total", "Scheduled job retries", ("outcome",), registry=self.registry)
+        self.retries = Counter("chronos_job_retries_total", "Retries scheduled after failed attempts", ("outcome",), registry=self.registry)
         self.expired = Counter("chronos_expired_leases_total", "Lease generations recovered after expiry", registry=self.registry)
         self.recovered = Counter("chronos_recovered_jobs_total", "Jobs reclaimed after lease expiry", registry=self.registry)
         self.claim_latency = Histogram("chronos_job_claim_latency_seconds", "Time spent in one PostgreSQL claim", ("result",), registry=self.registry)
         self.claim_batch = Histogram("chronos_claim_batch_size", "Jobs claimed during one worker poll", registry=self.registry,
                                      buckets=(0, 1, 2, 4, 8, 16))
-        self.queue_wait = Histogram("chronos_job_queue_wait_seconds", "Created-to-handler-start delay", ("job_type",), registry=self.registry,
+        self.queue_wait = Histogram("chronos_job_queue_wait_seconds", "Enqueued-to-handler-start delay", ("job_type",), registry=self.registry,
                                     buckets=(.001, .005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10, 30, 60, 300))
         self.execution = Histogram("chronos_job_execution_seconds", "Handler wall time", ("job_type",), registry=self.registry,
                                    buckets=(.001, .005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10, 30, 60, 300))
