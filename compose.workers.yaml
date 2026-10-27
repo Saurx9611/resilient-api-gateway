@@ -1,0 +1,245 @@
+# Isolated development/test stack for Phase 3. It does not alter compose.yaml.
+x-worker: &worker
+  build:
+    context: .
+    dockerfile: Dockerfile.worker
+  image: resilient-api-worker:chronos
+  restart: unless-stopped
+  read_only: true
+  tmpfs:
+    - /tmp
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  pids_limit: 64
+  mem_limit: 256m
+  cpus: 1
+  environment: &worker-environment
+    WORKER_DATABASE_URL: postgresql://gateway:dev-only-local@postgres:5432/gateway_dev
+    CHRONOS_WORKER_METRICS_PORT: "9100"
+  depends_on: &worker-dependencies
+    postgres:
+      condition: service_healthy
+    migrate:
+      condition: service_completed_successfully
+  stop_grace_period: 15s
+
+services:
+  postgres:
+    image: postgres:16-alpine@sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: dev-only-postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./worker_runtime/init.sql:/docker-entrypoint-initdb.d/001-workers.sql:ro
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  postgres-benchmark:
+    image: postgres:16-alpine@sha256:cf78e76683b9ca8c5733cbbdce6c9262b45b6767934dd0a95e671f9a0fc20685
+    profiles: [benchmark]
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: bench-only-postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./worker_runtime/init.sql:/docker-entrypoint-initdb.d/001-workers.sql:ro
+    ports:
+      - "127.0.0.1:55432:5432"
+    cpus: 2
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+
+  benchmark-migrate:
+    <<: *worker
+    profiles: [benchmark]
+    environment:
+      WORKER_DATABASE_URL: postgresql://gateway:dev-only-local@postgres-benchmark:5432/gateway_dev
+    command: ["migrate"]
+    restart: "no"
+    depends_on:
+      postgres-benchmark:
+        condition: service_healthy
+
+  benchmark-worker:
+    <<: *worker
+    profiles: [benchmark]
+    environment:
+      WORKER_DATABASE_URL: postgresql://gateway:dev-only-local@postgres-benchmark:5432/gateway_dev
+    command: ["worker", "--name", "benchmark", "--concurrency", "1", "--lease-seconds", "30"]
+    depends_on:
+      postgres-benchmark:
+        condition: service_healthy
+      benchmark-migrate:
+        condition: service_completed_successfully
+
+  migrate:
+    <<: *worker
+    command: ["migrate"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker-1:
+    <<: *worker
+    profiles: [workers, observability]
+    environment:
+      <<: *worker-environment
+      WORKER_NAME: worker-1
+    command: ["worker", "--name", "worker-1", "--concurrency", "2", "--lease-seconds", "6"]
+
+  worker-2:
+    <<: *worker
+    profiles: [workers, observability]
+    environment:
+      <<: *worker-environment
+      WORKER_NAME: worker-2
+    command: ["worker", "--name", "worker-2", "--concurrency", "2", "--lease-seconds", "6"]
+
+  worker-3:
+    <<: *worker
+    profiles: [workers, observability]
+    environment:
+      <<: *worker-environment
+      WORKER_NAME: worker-3
+    command: ["worker", "--name", "worker-3", "--concurrency", "2", "--lease-seconds", "6"]
+
+  api:
+    <<: *worker
+    profiles: [control, observability]
+    environment:
+      <<: *worker-environment
+      CHRONOS_API_KEYS: '{"local-operator":{"token":"local-development-token-do-not-use-outside-compose-0001","scopes":["read","submit","operator"]}}'
+      CHRONOS_API_RATE_LIMIT: "60"
+      CHRONOS_API_HOST: 0.0.0.0
+      CHRONOS_API_PORT: "8000"
+      CHRONOS_DB_POOL_MIN: "1"
+      CHRONOS_DB_POOL_MAX: "8"
+    command: ["api"]
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  scheduler:
+    <<: *worker
+    profiles: [control]
+    environment:
+      <<: *worker-environment
+      CHRONOS_SCHEDULER_POLL_SECONDS: "1"
+    command: ["scheduler", "--poll-interval", "1"]
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    image: chronos-dashboard:local
+    profiles: [control]
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+    mem_limit: 384m
+    cpus: 1
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+      CHRONOS_API_URL: http://api:8000
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      api:
+        condition: service_started
+    stop_grace_period: 15s
+
+  prometheus:
+    image: prom/prometheus:v3.5.0
+    profiles: [observability]
+    restart: unless-stopped
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus", "--storage.tsdb.retention.time=7d"]
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      api:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana-oss:12.1.0
+    profiles: [observability]
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: dev-only-grafana
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      prometheus:
+        condition: service_started
+
+  enqueue:
+    <<: *worker
+    profiles: [ops]
+    command: ["enqueue"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  status:
+    <<: *worker
+    profiles: [ops]
+    command: ["status"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  workers:
+    <<: *worker
+    profiles: [ops]
+    command: ["workers"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  tests:
+    <<: *worker
+    profiles: [test]
+    environment:
+      WORKER_DATABASE_URL: postgresql://gateway:dev-only-local@postgres:5432/gateway_test
+      WORKER_TEST_DSN: postgresql://gateway:dev-only-local@postgres:5432/gateway_test
+      WORKER_DB_SCHEMA: worker_runtime_test
+      CHRONOS_WORKER_METRICS_PORT: ""
+    command: ["-m", "unittest", "discover", "-s", "worker_runtime/tests", "-v"]
+    entrypoint: ["python"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+volumes:
+  pgdata: {}
+  prometheus-data: {}
+  grafana-data: {}
+

@@ -1,0 +1,18 @@
+{
+  "uid": "chronos-workers",
+  "title": "Chronos Workers",
+  "tags": ["chronos", "workers"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": {"from": "now-1h", "to": "now"},
+  "panels": [
+    {"id": 1, "title": "Completed jobs / second", "type": "timeseries", "gridPos": {"x": 0, "y": 0, "w": 12, "h": 8}, "targets": [{"expr": "sum(rate(chronos_jobs_completed_total[1m]))", "legendFormat": "completed/s"}]},
+    {"id": 2, "title": "Queue wait p50 / p95 / p99", "type": "timeseries", "gridPos": {"x": 12, "y": 0, "w": 12, "h": 8}, "targets": [{"expr": "histogram_quantile(0.50, sum by (le) (rate(chronos_job_queue_wait_seconds_bucket[5m])))", "legendFormat": "p50"}, {"expr": "histogram_quantile(0.95, sum by (le) (rate(chronos_job_queue_wait_seconds_bucket[5m])))", "legendFormat": "p95"}, {"expr": "histogram_quantile(0.99, sum by (le) (rate(chronos_job_queue_wait_seconds_bucket[5m])))", "legendFormat": "p99"}]},
+    {"id": 3, "title": "Handler execution p95", "type": "timeseries", "gridPos": {"x": 0, "y": 8, "w": 12, "h": 8}, "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(chronos_job_execution_seconds_bucket[5m])))", "legendFormat": "p95 seconds"}]},
+    {"id": 4, "title": "Queue and worker state", "type": "timeseries", "gridPos": {"x": 12, "y": 8, "w": 12, "h": 8}, "targets": [{"expr": "chronos_jobs{state=\"queued\"}", "legendFormat": "queued"}, {"expr": "chronos_jobs{state=\"running\"}", "legendFormat": "running"}, {"expr": "chronos_workers{state=\"active\"}", "legendFormat": "active workers"}, {"expr": "chronos_workers{state=\"idle\"}", "legendFormat": "idle workers"}, {"expr": "chronos_api_db_pool_connections{state=\"in_use\"}", "legendFormat": "API DB connections in use"}]},
+    {"id": 5, "title": "Claim latency p95", "type": "timeseries", "gridPos": {"x": 0, "y": 16, "w": 12, "h": 8}, "targets": [{"expr": "histogram_quantile(0.95, sum by (le) (rate(chronos_job_claim_latency_seconds_bucket[5m])))", "legendFormat": "p95 seconds"}]},
+    {"id": 6, "title": "Failures and retries", "type": "timeseries", "gridPos": {"x": 12, "y": 16, "w": 12, "h": 8}, "targets": [{"expr": "sum by (outcome) (rate(chronos_jobs_failed_total[5m]))", "legendFormat": "failure {{outcome}}/s"}, {"expr": "sum by (outcome) (rate(chronos_job_retries_total[5m]))", "legendFormat": "retry {{outcome}}/s"}]}
+  ]
+}

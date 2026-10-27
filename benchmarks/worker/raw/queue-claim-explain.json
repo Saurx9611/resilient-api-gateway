@@ -1,0 +1,197 @@
+{
+  "timestamp_utc": "2026-10-27T19:28:59.337045+00:00",
+  "query": "worker_runtime.Repository.claim candidate SELECT with SKIP LOCKED and priority ordering",
+  "fixture_jobs": 10000,
+  "plan": [
+    {
+      "Plan": {
+        "Node Type": "Limit",
+        "Parallel Aware": false,
+        "Async Capable": false,
+        "Startup Cost": 462.55,
+        "Total Cost": 462.57,
+        "Plan Rows": 1,
+        "Plan Width": 34,
+        "Actual Startup Time": 4.018,
+        "Actual Total Time": 4.019,
+        "Actual Rows": 1,
+        "Actual Loops": 1,
+        "Shared Hit Blocks": 183,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0,
+        "Plans": [
+          {
+            "Node Type": "LockRows",
+            "Parent Relationship": "Outer",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Startup Cost": 462.55,
+            "Total Cost": 476.44,
+            "Plan Rows": 1111,
+            "Plan Width": 34,
+            "Actual Startup Time": 4.017,
+            "Actual Total Time": 4.018,
+            "Actual Rows": 1,
+            "Actual Loops": 1,
+            "Shared Hit Blocks": 183,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0,
+            "Plans": [
+              {
+                "Node Type": "Sort",
+                "Parent Relationship": "Outer",
+                "Parallel Aware": false,
+                "Async Capable": false,
+                "Startup Cost": 462.55,
+                "Total Cost": 465.33,
+                "Plan Rows": 1111,
+                "Plan Width": 34,
+                "Actual Startup Time": 4.011,
+                "Actual Total Time": 4.012,
+                "Actual Rows": 1,
+                "Actual Loops": 1,
+                "Sort Key": [
+                  "priority DESC",
+                  "available_at",
+                  "created_at",
+                  "id"
+                ],
+                "Sort Method": "quicksort",
+                "Sort Space Used": 1010,
+                "Sort Space Type": "Memory",
+                "Shared Hit Blocks": 182,
+                "Shared Read Blocks": 0,
+                "Shared Dirtied Blocks": 0,
+                "Shared Written Blocks": 0,
+                "Local Hit Blocks": 0,
+                "Local Read Blocks": 0,
+                "Local Dirtied Blocks": 0,
+                "Local Written Blocks": 0,
+                "Temp Read Blocks": 0,
+                "Temp Written Blocks": 0,
+                "Plans": [
+                  {
+                    "Node Type": "Seq Scan",
+                    "Parent Relationship": "Outer",
+                    "Parallel Aware": false,
+                    "Async Capable": false,
+                    "Relation Name": "worker_jobs",
+                    "Alias": "worker_jobs",
+                    "Startup Cost": 0.0,
+                    "Total Cost": 457.0,
+                    "Plan Rows": 1111,
+                    "Plan Width": 34,
+                    "Actual Startup Time": 0.008,
+                    "Actual Total Time": 2.284,
+                    "Actual Rows": 10000,
+                    "Actual Loops": 1,
+                    "Filter": "((attempts < max_attempts) AND (((state = 'queued'::text) AND (available_at <= clock_timestamp())) OR ((state = 'running'::text) AND (cancel_requested_at IS NULL) AND (lease_until <= clock_timestamp()))))",
+                    "Rows Removed by Filter": 0,
+                    "Shared Hit Blocks": 182,
+                    "Shared Read Blocks": 0,
+                    "Shared Dirtied Blocks": 0,
+                    "Shared Written Blocks": 0,
+                    "Local Hit Blocks": 0,
+                    "Local Read Blocks": 0,
+                    "Local Dirtied Blocks": 0,
+                    "Local Written Blocks": 0,
+                    "Temp Read Blocks": 0,
+                    "Temp Written Blocks": 0
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "Planning": {
+        "Shared Hit Blocks": 64,
+        "Shared Read Blocks": 0,
+        "Shared Dirtied Blocks": 0,
+        "Shared Written Blocks": 0,
+        "Local Hit Blocks": 0,
+        "Local Read Blocks": 0,
+        "Local Dirtied Blocks": 0,
+        "Local Written Blocks": 0,
+        "Temp Read Blocks": 0,
+        "Temp Written Blocks": 0
+      },
+      "Planning Time": 0.552,
+      "Triggers": [],
+      "Execution Time": 4.231
+    }
+  ],
+  "table_statistics": [
+    [
+      "worker_job_events",
+      0,
+      0,
+      5,
+      0,
+      "2026-10-27 19:28:59.293187+00:00"
+    ],
+    [
+      "worker_jobs",
+      0,
+      0,
+      12,
+      0,
+      "2026-10-27 19:28:59.281620+00:00"
+    ]
+  ],
+  "index_statistics": [
+    [
+      "worker_jobs_current_worker",
+      0,
+      0,
+      0
+    ],
+    [
+      "worker_jobs_expired_lease",
+      0,
+      0,
+      0
+    ],
+    [
+      "worker_jobs_idempotency_key",
+      0,
+      0,
+      0
+    ],
+    [
+      "worker_jobs_pkey",
+      0,
+      0,
+      0
+    ],
+    [
+      "worker_jobs_queued_priority_order",
+      0,
+      0,
+      0
+    ]
+  ],
+  "postgresql": [
+    "16.15",
+    "100",
+    "128MB",
+    "4MB",
+    "4",
+    "4GB",
+    "on"
+  ]
+}

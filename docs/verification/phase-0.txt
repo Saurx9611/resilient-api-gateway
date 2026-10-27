@@ -1,0 +1,58 @@
+Phase 0 local verification: 2026-10-27T09:42:48.430875+00:00
+Windows amd64; repository-local official Go 1.27.3; local caches; no runtime services.
+Archive SHA256: f26081f438319757f8a1b46d7d0b2c5ec7583d4038e485e0aa725cfde7885fff
+
+$ .\.tools\go\bin\go.exe version
+go version go1.27.3 windows/amd64
+exit=0
+
+$ .\.tools\go\bin\go.exe env GOOS GOARCH CGO_ENABLED GOTOOLCHAIN
+windows
+amd64
+1
+local
+exit=0
+
+$ gcc --version
+gcc (Rev3, Built by MSYS2 project) 16.2.0
+Copyright (C) 2026 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+exit=0
+
+$ .\.tools\go\bin\gofmt.exe -w cmd/gateway/main.go cmd/gateway/main_test.go
+
+exit=0
+
+$ .\.tools\go\bin\gofmt.exe -l cmd
+
+exit=0
+
+$ .\.tools\go\bin\go.exe test -v ./...
+=== RUN   TestRun
+--- PASS: TestRun (0.00s)
+=== RUN   TestRunReportsOutputFailure
+--- PASS: TestRunReportsOutputFailure (0.00s)
+PASS
+ok  	example.com/resilient-api-gateway/cmd/gateway	1.394s
+exit=0
+
+$ .\.tools\go\bin\go.exe test -race ./...
+ok  	example.com/resilient-api-gateway/cmd/gateway	1.888s
+exit=0
+
+$ .\.tools\go\bin\go.exe vet ./...
+
+exit=0
+
+$ .\.tools\go\bin\go.exe build -o bin/ ./cmd/gateway
+
+exit=0
+
+$ .\bin\gateway.exe
+resilient-api-gateway: Phase 0 scaffold; proxy not implemented
+exit=0
+
+$ .\.tools\go\bin\go.exe run ./cmd/gateway
+resilient-api-gateway: Phase 0 scaffold; proxy not implemented
+exit=0

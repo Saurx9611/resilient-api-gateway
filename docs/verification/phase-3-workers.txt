@@ -1,0 +1,180 @@
+Phase 3 worker verification; UTC 2026-10-27T17:34:20Z
+Client 29.8.0; Server 29.8.0
+Projects: rag-worker-p3-test-17a673cc and rag-worker-p3-demo-17a673cc (this script only removes these unique Compose projects).
+
+> docker compose -p rag-worker-p3-test-17a673cc -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile test run --build --rm tests
+ Network rag-worker-p3-test-17a673cc_default Creating 
+ Network rag-worker-p3-test-17a673cc_default Creating 
+ Network rag-worker-p3-test-17a673cc_default Created 
+ Network rag-worker-p3-test-17a673cc_default Created 
+ Container rag-worker-p3-test-17a673cc-postgres-1 Creating 
+ Container rag-worker-p3-test-17a673cc-postgres-1 Created 
+ Container rag-worker-p3-test-17a673cc-postgres-1 Starting 
+ Container rag-worker-p3-test-17a673cc-postgres-1 Started 
+ Image resilient-api-worker:phase3 Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 586B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile.worker
+#2 transferring dockerfile: 531B 0.0s done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 204B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [1/6] FROM docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#6 resolve docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534 0.1s done
+#6 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 1.82kB done
+#5 DONE 0.0s
+
+#7 [2/6] WORKDIR /app
+#7 CACHED
+
+#8 [3/6] COPY requirements.txt ./
+#8 CACHED
+
+#9 [4/6] RUN pip install --no-cache-dir --requirement requirements.txt
+#9 CACHED
+
+#10 [5/6] COPY worker_runtime ./worker_runtime
+#10 CACHED
+
+#11 [6/6] RUN groupadd --gid 10001 worker && useradd --uid 10001 --gid worker --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin worker
+#11 CACHED
+
+#12 exporting to image
+#12 exporting layers done
+#12 exporting manifest sha256:ebabde17a41e653e3b47e182d5e3272c2c03a4fc6ff16323f3b5d3ccf566ff32 0.0s done
+#12 exporting config sha256:f2039884b838012b56d839fc21ec90e51a97a2849d451babb33f28a934c8d713
+#12 exporting config sha256:f2039884b838012b56d839fc21ec90e51a97a2849d451babb33f28a934c8d713 0.1s done
+#12 exporting attestation manifest sha256:8b82bc87dfb5d2bb0415058a9dc1beecfb417a5ef831817725725cc4ff5be02d
+#12 exporting attestation manifest sha256:8b82bc87dfb5d2bb0415058a9dc1beecfb417a5ef831817725725cc4ff5be02d 0.1s done
+#12 exporting manifest list sha256:ed50fe5e0346635f2d7085cb9465b37637861bcc51f6214be101d122e4040b27 0.1s done
+#12 naming to docker.io/library/resilient-api-worker:phase3
+#12 naming to docker.io/library/resilient-api-worker:phase3 0.0s done
+#12 unpacking to docker.io/library/resilient-api-worker:phase3 0.0s done
+#12 DONE 0.4s
+
+#13 resolving provenance for metadata file
+#13 DONE 0.0s
+ Image resilient-api-worker:phase3 Built 
+ Container rag-worker-p3-test-17a673cc-postgres-1 Waiting 
+ Container rag-worker-p3-test-17a673cc-postgres-1 Healthy 
+ Container rag-worker-p3-test-17a673cc-tests-run-e46836002448 Creating 
+ Container rag-worker-p3-test-17a673cc-tests-run-e46836002448 Created 
+test_cooperative_context_deadline (test_handlers.HandlerTests.test_cooperative_context_deadline) ... ok
+test_csv_transform_is_bounded_and_deterministic (test_handlers.HandlerTests.test_csv_transform_is_bounded_and_deterministic) ... ok
+test_image_metadata_reads_png_header_without_decoder (test_handlers.HandlerTests.test_image_metadata_reads_png_header_without_decoder) ... ok
+test_image_rejects_malformed_crc_and_non_png (test_handlers.HandlerTests.test_image_rejects_malformed_crc_and_non_png) ... ok
+test_notification_is_simulated_and_allowlisted (test_handlers.HandlerTests.test_notification_is_simulated_and_allowlisted) ... ok
+test_synthetic_report_aggregates_and_validates (test_handlers.HandlerTests.test_synthetic_report_aggregates_and_validates) ... ok
+test_unknown_job_type_never_loads_or_executes_code (test_handlers.HandlerTests.test_unknown_job_type_never_loads_or_executes_code) ... ok
+test_handler_timeout_is_killed_and_recorded (test_processes.WorkerProcessIntegrationTests.test_handler_timeout_is_killed_and_recorded) ... ok
+test_job_specific_runtime_limit_is_enforced (test_processes.WorkerProcessIntegrationTests.test_job_specific_runtime_limit_is_enforced) ... ok
+test_live_database_disconnect_stops_child_and_worker_recovers (test_processes.WorkerProcessIntegrationTests.test_live_database_disconnect_stops_child_and_worker_recovers) ... FAIL
+test_paused_worker_cannot_ack_after_lease_expiry_and_replacement_claim (test_processes.WorkerProcessIntegrationTests.test_paused_worker_cannot_ack_after_lease_expiry_and_replacement_claim) ... ok
+test_sigkill_expires_lease_then_another_process_recovers_job (test_processes.WorkerProcessIntegrationTests.test_sigkill_expires_lease_then_another_process_recovers_job) ... FAIL
+test_sigterm_stops_claiming_and_drains_active_work (test_processes.WorkerProcessIntegrationTests.test_sigterm_stops_claiming_and_drains_active_work) ... ok
+test_three_processes_distribute_work_and_keep_a_single_valid_lease_owner (test_processes.WorkerProcessIntegrationTests.test_three_processes_distribute_work_and_keep_a_single_valid_lease_owner) ... ok
+test_worker_killed_after_claim_before_handler_start_is_reclaimed (test_processes.WorkerProcessIntegrationTests.test_worker_killed_after_claim_before_handler_start_is_reclaimed) ... FAIL
+test_worker_killed_after_handler_work_before_ack_repeats_idempotent_simulation (test_processes.WorkerProcessIntegrationTests.test_worker_killed_after_handler_work_before_ack_repeats_idempotent_simulation) ... ok
+test_claim_after_expiry_is_competed_and_only_one_new_generation_wins (test_repository.RepositoryIntegrationTests.test_claim_after_expiry_is_competed_and_only_one_new_generation_wins) ... ok
+test_database_connection_termination_is_detected_and_reconnected (test_repository.RepositoryIntegrationTests.test_database_connection_termination_is_detected_and_reconnected) ... ok
+test_expired_final_attempt_is_abandoned (test_repository.RepositoryIntegrationTests.test_expired_final_attempt_is_abandoned) ... ok
+test_idempotency_key_deduplicates_and_rejects_changed_contents (test_repository.RepositoryIntegrationTests.test_idempotency_key_deduplicates_and_rejects_changed_contents) ... ok
+test_operator_replay_preserves_source_and_creates_new_idempotent_handler_work (test_repository.RepositoryIntegrationTests.test_operator_replay_preserves_source_and_creates_new_idempotent_handler_work) ... ok
+test_repeated_failures_dead_letter_then_explicit_retry_and_replay (test_repository.RepositoryIntegrationTests.test_repeated_failures_dead_letter_then_explicit_retry_and_replay) ... ok
+test_retry_backoff_and_final_attempt_abandonment (test_repository.RepositoryIntegrationTests.test_retry_backoff_and_final_attempt_abandonment) ... ok
+test_stale_lease_token_cannot_complete_after_reclaim (test_repository.RepositoryIntegrationTests.test_stale_lease_token_cannot_complete_after_reclaim) ... ok
+test_two_independent_connections_cannot_claim_one_valid_lease (test_repository.RepositoryIntegrationTests.test_two_independent_connections_cannot_claim_one_valid_lease) ... ok
+test_worker_heartbeat_stale_threshold_is_operator_configurable (test_repository.RepositoryIntegrationTests.test_worker_heartbeat_stale_threshold_is_operator_configurable) ... ok
+test_resource_and_identity_bounds (test_runtime_config.WorkerConfigTests.test_resource_and_identity_bounds) ... ok
+
+======================================================================
+FAIL: test_live_database_disconnect_stops_child_and_worker_recovers (test_processes.WorkerProcessIntegrationTests.test_live_database_disconnect_stops_child_and_worker_recovers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/worker_runtime/tests/test_processes.py", line 242, in test_live_database_disconnect_stops_child_and_worker_recovers
+    self.assertEqual(["enqueued", "claimed", "lease_reclaimed", "succeeded"], events)
+AssertionError: Lists differ: ['enqueued', 'claimed', 'lease_reclaimed', 'succeeded'] != ['enqueued', 'claimed', 'lease_reclaimed', 'effect_applied', 'succeeded']
+
+First differing element 3:
+'succeeded'
+'effect_applied'
+
+Second list contains 1 additional elements.
+First extra element 4:
+'succeeded'
+
+- ['enqueued', 'claimed', 'lease_reclaimed', 'succeeded']
++ ['enqueued', 'claimed', 'lease_reclaimed', 'effect_applied', 'succeeded']
+?                                            ++++++++++++++++++
+
+
+======================================================================
+FAIL: test_sigkill_expires_lease_then_another_process_recovers_job (test_processes.WorkerProcessIntegrationTests.test_sigkill_expires_lease_then_another_process_recovers_job)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/worker_runtime/tests/test_processes.py", line 166, in test_sigkill_expires_lease_then_another_process_recovers_job
+    self.assertEqual(["enqueued", "claimed", "lease_reclaimed", "succeeded"], [event["event_type"] for event in events])
+AssertionError: Lists differ: ['enqueued', 'claimed', 'lease_reclaimed', 'succeeded'] != ['enqueued', 'claimed', 'lease_reclaimed', 'effect_applied', 'succeeded']
+
+First differing element 3:
+'succeeded'
+'effect_applied'
+
+Second list contains 1 additional elements.
+First extra element 4:
+'succeeded'
+
+- ['enqueued', 'claimed', 'lease_reclaimed', 'succeeded']
++ ['enqueued', 'claimed', 'lease_reclaimed', 'effect_applied', 'succeeded']
+?                                            ++++++++++++++++++
+
+
+======================================================================
+FAIL: test_worker_killed_after_claim_before_handler_start_is_reclaimed (test_processes.WorkerProcessIntegrationTests.test_worker_killed_after_claim_before_handler_start_is_reclaimed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/app/worker_runtime/tests/test_processes.py", line 181, in test_worker_killed_after_claim_before_handler_start_is_reclaimed
+    self.assertEqual(["enqueued", "claimed", "lease_reclaimed", "succeeded"], [e["event_type"] for e in events])
+AssertionError: Lists differ: ['enqueued', 'claimed', 'lease_reclaimed', 'succeeded'] != ['enqueued', 'claimed', 'lease_reclaimed', 'effect_applied', 'succeeded']
+
+First differing element 3:
+'succeeded'
+'effect_applied'
+
+Second list contains 1 additional elements.
+First extra element 4:
+'succeeded'
+
+- ['enqueued', 'claimed', 'lease_reclaimed', 'succeeded']
++ ['enqueued', 'claimed', 'lease_reclaimed', 'effect_applied', 'succeeded']
+?                                            ++++++++++++++++++
+
+
+----------------------------------------------------------------------
+Ran 27 tests in 59.668s
+
+FAILED (failures=3)
+
+
+> docker compose -p rag-worker-p3-test-17a673cc -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml down
+ Container rag-worker-p3-test-17a673cc-postgres-1 Stopping 
+ Container rag-worker-p3-test-17a673cc-postgres-1 Stopped 
+ Container rag-worker-p3-test-17a673cc-postgres-1 Removing 
+ Container rag-worker-p3-test-17a673cc-postgres-1 Removed 
+ Network rag-worker-p3-test-17a673cc_default Removing 
+ Network rag-worker-p3-test-17a673cc_default Removed 
+FAILED: docker compose failed with exit code 1

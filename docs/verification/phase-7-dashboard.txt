@@ -1,0 +1,80 @@
+Gateway dashboard implementation verification
+Date: 2026-10-28 (Asia/Calcutta)
+Repository: resilient-api-gateway
+Scope: requested dashboard phase (the repository currently numbers the UI as Phase 8 because worker companion phases are tracked independently).
+
+Backend verification environment
+-------------------------------
+OS: Windows amd64 (same local environment used by Phase 5/6 transcripts)
+Go: go1.27.3 windows/amd64 (download toolchain already in repository at .tools/go)
+Node: v24.21.0; npm: 11.19.0
+Redis: REDIS_TEST_URL=redis://127.0.0.1:6379/0, real local Redis test endpoint
+
+Command:
+  $env:GOCACHE=(Join-Path (Get-Location) '.gocache')
+  $env:GOPATH=(Join-Path (Get-Location) '.gopath')
+  $env:GOMODCACHE=(Join-Path $env:GOPATH 'pkg\mod')
+  $env:REDIS_TEST_URL='redis://127.0.0.1:6379/0'
+  .\.tools\go\bin\go.exe test -race -count=1 -timeout 120s ./...
+
+Observed output / result:
+  ok    example.com/resilient-api-gateway/bench  2.606s [no tests to run]
+  ok    example.com/resilient-api-gateway/cmd/gateway  3.021s
+  ?     example.com/resilient-api-gateway/cmd/upstream-sim [no test files]
+  ok    example.com/resilient-api-gateway/internal/breaker  1.289s
+  ok    example.com/resilient-api-gateway/internal/gateway  4.880s
+  ok    example.com/resilient-api-gateway/internal/ratelimit  3.813s
+  ok    example.com/resilient-api-gateway/internal/server  1.827s
+  ?     example.com/resilient-api-gateway/web/node_modules/flatted/golang/pkg/flatted [no test files]
+  Exit code: 0
+
+The new gateway tests exercise demo-token authorization, fixed endpoints and
+methods, disabled/weak-token handling, query/body rejection, single-flight
+per-process cooldown behavior, one real request, real-Redis burst-to-429 behavior, sampled
+request/upstream/Redis timings and counters, plus an isolated circuit sequence
+through Open, Half-Open and Closed without contacting either configured upstream.
+The pre-existing metrics regression test also
+confirms that observations above the final finite histogram bound increment the
++Inf bucket instead of panicking. REDIS_TEST_URL was set, so Redis integration
+tests were not skipped. This race run covered all Go packages.
+
+Additional backend checks (same local GOPATH/GOCACHE):
+  .\.tools\go\bin\go.exe vet ./...         exit code 0, no output
+  .\.tools\go\bin\go.exe build -o bin/ ./cmd/...  exit code 0, no output
+  .\.tools\go\bin\gofmt.exe -w <touched Go files> exit code 0
+
+Frontend verification
+---------------------
+Existing framework reused: Next.js 16.4.3 / React 19.3.0; no dependency added.
+  npm run build                         PASS; /gateway and both /api/demo routes present
+  npx tsc --noEmit                      PASS; no output
+  npx eslint src/app/gateway/page.tsx src/app/api/demo  PASS; no output
+  npm run lint                          PASS, no output beyond script banner
+
+Standalone Next HTTP smoke run (GATEWAY_INTERNAL_URL=http://127.0.0.1:18080,
+GATEWAY_DEMO_TOKEN set to a local 32-byte test token; no gateway listening at
+port 18080):
+  GET  http://localhost:3000/gateway                                  200
+  GET  http://localhost:3000/api/demo/status                          503, generic unavailable/configuration JSON
+  POST /api/demo/actions/normal, Origin http://evil.example            403
+  POST /api/demo/actions/normal, same-origin, empty body               503 (forwarded; expected because gateway endpoint is unavailable)
+  POST /api/demo/actions/normal, same-origin, body supplied            413
+An earlier smoke attempt found a NextRequest body-stream edge case that rejected
+empty POSTs; it was fixed and the final smoke output above verifies forwarding.
+
+Responsive and accessibility verification limits
+-------------------------------------------------
+The stylesheet contains a 760px single-column breakpoint, 44px mobile action
+buttons, a keyboard skip link, visible :focus-visible outlines, and reduced-motion
+handling. The UI uses semantic headings, sections, buttons, status text and an
+aria-live result area. Visual viewport checks (mobile/desktop), screen-reader
+testing and interaction with a live populated gateway remain unverified: the
+Computer Use browser inventory had no browser provider, and its Chrome binding
+stopped because it could not determine the current URL with enough confidence.
+No screenshot or claim of visual verification is made.
+
+No performance benchmark was run for this UI task; it adds no benchmark claims.
+Gateway metrics are process-local and cumulative, so horizontal replicas do not
+produce a fleet aggregate in this dashboard. The single-flight gate and cooldowns
+are also process-local; a public multi-replica deployment needs shared or
+ingress-level action throttling in addition to the per-invocation 64-request cap.

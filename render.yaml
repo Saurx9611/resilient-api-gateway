@@ -1,0 +1,59 @@
+services:
+  - type: web
+    name: resilient-gateway-dashboard
+    runtime: docker
+    dockerfilePath: ./Dockerfile.web
+    dockerContext: .
+    region: oregon
+    plan: free
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: GATEWAY_INTERNAL_HOSTPORT
+        fromService: {type: pserv, name: resilient-gateway, property: hostport}
+      - key: GATEWAY_DEMO_TOKEN
+        sync: false
+
+  - type: pserv
+    name: resilient-gateway
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    region: oregon
+    plan: 0.5c-512mb
+    envVars:
+      - key: REDIS_URL
+        fromService: {type: keyvalue, name: resilient-gateway-redis, property: connectionString}
+      - key: UPSTREAM_ONE_HOSTPORT
+        fromService: {type: pserv, name: resilient-gateway-one, property: hostport}
+      - key: UPSTREAM_TWO_HOSTPORT
+        fromService: {type: pserv, name: resilient-gateway-two, property: hostport}
+      - key: GATEWAY_DEMO_TOKEN
+        sync: false
+      - key: METRICS_BEARER_TOKEN
+        sync: false
+
+  - type: pserv
+    name: resilient-gateway-one
+    runtime: docker
+    dockerfilePath: ./Dockerfile.upstream
+    dockerContext: .
+    dockerCommand: -listen 0.0.0.0:9001 -name one
+    region: oregon
+    plan: 0.5c-512mb
+
+  - type: pserv
+    name: resilient-gateway-two
+    runtime: docker
+    dockerfilePath: ./Dockerfile.upstream
+    dockerContext: .
+    dockerCommand: -listen 0.0.0.0:9002 -name two
+    region: oregon
+    plan: 0.5c-512mb
+
+  - type: keyvalue
+    name: resilient-gateway-redis
+    region: oregon
+    plan: free
+    maxmemoryPolicy: noeviction
+    persistenceMode: off
+    ipAllowList: []

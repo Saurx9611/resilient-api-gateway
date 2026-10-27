@@ -1,0 +1,10 @@
+.tools/
+.gocache/
+.gopath/
+bin/
+*.test
+coverage.out
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/

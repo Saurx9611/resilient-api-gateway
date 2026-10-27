@@ -1,0 +1,547 @@
+Chronos Phase 6 dashboard verification; UTC 2026-10-27T19:03:46Z
+Client 29.8.0; Server 29.8.0
+Unique projects: chronos-p6-test-2a2fa73c, chronos-p6-demo-2a2fa73c
+
+> docker compose -p chronos-p6-test-2a2fa73c -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile test run --build --rm tests
+ Network chronos-p6-test-2a2fa73c_default Creating 
+ Volume chronos-p6-test-2a2fa73c_pgdata Creating 
+ Network chronos-p6-test-2a2fa73c_default Creating 
+ Volume chronos-p6-test-2a2fa73c_pgdata Creating 
+ Volume chronos-p6-test-2a2fa73c_pgdata Created 
+ Volume chronos-p6-test-2a2fa73c_pgdata Created 
+ Network chronos-p6-test-2a2fa73c_default Created 
+ Network chronos-p6-test-2a2fa73c_default Created 
+ Container chronos-p6-test-2a2fa73c-postgres-1 Creating 
+ Container chronos-p6-test-2a2fa73c-postgres-1 Created 
+ Container chronos-p6-test-2a2fa73c-postgres-1 Starting 
+ Container chronos-p6-test-2a2fa73c-postgres-1 Started 
+ Image resilient-api-worker:chronos Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 584B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile.worker
+#2 transferring dockerfile: 531B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 231B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [1/6] FROM docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#6 resolve docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534 0.1s done
+#6 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 1.96kB done
+#5 DONE 0.0s
+
+#7 [2/6] WORKDIR /app
+#7 CACHED
+
+#8 [3/6] COPY requirements.txt ./
+#8 CACHED
+
+#9 [4/6] RUN pip install --no-cache-dir --requirement requirements.txt
+#9 CACHED
+
+#10 [5/6] COPY worker_runtime ./worker_runtime
+#10 DONE 0.2s
+
+#11 [6/6] RUN groupadd --gid 10001 worker && useradd --uid 10001 --gid worker --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin worker
+#11 DONE 0.8s
+
+#12 exporting to image
+#12 exporting layers
+#12 exporting layers 0.5s done
+#12 exporting manifest sha256:8534a3b95ff0ea5799f7b87d32a803a0a043331eeb3b54c8ff64cafa50f2b286 0.1s done
+#12 exporting config sha256:29764307d3a14a34a3e21e21b93e0ae3bc800d6f7d07815dcf2e73c3f1c8e37c 0.1s done
+#12 exporting attestation manifest sha256:c78c9ba88c4c4bf313983f0af66d70c8c597fd66f92d58b5db54626bb8061ca0 0.1s done
+#12 exporting manifest list sha256:987213fc0a8f221f572c0814a86292407d546c7f4bbad2c6faa7a81e2676d643
+#12 exporting manifest list sha256:987213fc0a8f221f572c0814a86292407d546c7f4bbad2c6faa7a81e2676d643 0.1s done
+#12 naming to docker.io/library/resilient-api-worker:chronos done
+#12 unpacking to docker.io/library/resilient-api-worker:chronos 0.1s done
+#12 DONE 1.1s
+
+#13 resolving provenance for metadata file
+#13 DONE 0.0s
+ Image resilient-api-worker:chronos Built 
+ Container chronos-p6-test-2a2fa73c-postgres-1 Waiting 
+ Container chronos-p6-test-2a2fa73c-postgres-1 Healthy 
+ Container chronos-p6-test-2a2fa73c-tests-run-c6a3b217288b Creating 
+ Container chronos-p6-test-2a2fa73c-tests-run-c6a3b217288b Created 
+test_cancel_queued_and_running_job_is_audited_and_fenced (test_api.ControlAPIIntegrationTests.test_cancel_queued_and_running_job_is_audited_and_fenced) ... ok
+test_concurrent_repeated_submission_creates_one_job (test_api.ControlAPIIntegrationTests.test_concurrent_repeated_submission_creates_one_job) ... ok
+test_cursor_filter_and_attempt_history (test_api.ControlAPIIntegrationTests.test_cursor_filter_and_attempt_history) ... ok
+test_database_unavailability_returns_safe_service_error (test_api.ControlAPIIntegrationTests.test_database_unavailability_returns_safe_service_error) ... ok
+test_delayed_job_priority_queue_stats_and_workers (test_api.ControlAPIIntegrationTests.test_delayed_job_priority_queue_stats_and_workers) ... ok
+test_observability_and_recent_events_are_derived_from_postgres (test_api.ControlAPIIntegrationTests.test_observability_and_recent_events_are_derived_from_postgres) ... ok
+test_postgresql_fixed_window_rate_limit_and_headers (test_api.ControlAPIIntegrationTests.test_postgresql_fixed_window_rate_limit_and_headers) ... ok
+test_queue_policy_is_authorized_bounded_and_used_for_defaults (test_api.ControlAPIIntegrationTests.test_queue_policy_is_authorized_bounded_and_used_for_defaults) ... ok
+test_recurring_schedule_api_and_cancel (test_api.ControlAPIIntegrationTests.test_recurring_schedule_api_and_cancel) ... ok
+test_retry_and_controlled_replay_apis (test_api.ControlAPIIntegrationTests.test_retry_and_controlled_replay_apis) ... ok
+test_strict_schema_payload_bounds_and_content_type (test_api.ControlAPIIntegrationTests.test_strict_schema_payload_bounds_and_content_type) ... ok
+test_submission_idempotency_fingerprint_and_principal_scope (test_api.ControlAPIIntegrationTests.test_submission_idempotency_fingerprint_and_principal_scope) ... ok
+test_swagger_openapi_documents_bearer_auth_and_request_schemas (test_api.ControlAPIIntegrationTests.test_swagger_openapi_documents_bearer_auth_and_request_schemas) ... ok
+test_unauthorized_and_forbidden_requests_have_consistent_errors (test_api.ControlAPIIntegrationTests.test_unauthorized_and_forbidden_requests_have_consistent_errors) ... ok
+test_cooperative_context_deadline (test_handlers.HandlerTests.test_cooperative_context_deadline) ... ok
+test_csv_transform_is_bounded_and_deterministic (test_handlers.HandlerTests.test_csv_transform_is_bounded_and_deterministic) ... ok
+test_image_metadata_reads_png_header_without_decoder (test_handlers.HandlerTests.test_image_metadata_reads_png_header_without_decoder) ... ok
+test_image_rejects_malformed_crc_and_non_png (test_handlers.HandlerTests.test_image_rejects_malformed_crc_and_non_png) ... ok
+test_notification_is_simulated_and_allowlisted (test_handlers.HandlerTests.test_notification_is_simulated_and_allowlisted) ... ok
+test_synthetic_report_aggregates_and_validates (test_handlers.HandlerTests.test_synthetic_report_aggregates_and_validates) ... ok
+test_unknown_job_type_never_loads_or_executes_code (test_handlers.HandlerTests.test_unknown_job_type_never_loads_or_executes_code) ... ok
+test_handler_timeout_is_killed_and_recorded (test_processes.WorkerProcessIntegrationTests.test_handler_timeout_is_killed_and_recorded) ... ok
+test_job_specific_runtime_limit_is_enforced (test_processes.WorkerProcessIntegrationTests.test_job_specific_runtime_limit_is_enforced) ... ok
+test_live_database_disconnect_stops_child_and_worker_recovers (test_processes.WorkerProcessIntegrationTests.test_live_database_disconnect_stops_child_and_worker_recovers) ... ok
+test_paused_worker_cannot_ack_after_lease_expiry_and_replacement_claim (test_processes.WorkerProcessIntegrationTests.test_paused_worker_cannot_ack_after_lease_expiry_and_replacement_claim) ... ok
+test_running_job_cancellation_stops_handler_at_lease_renewal (test_processes.WorkerProcessIntegrationTests.test_running_job_cancellation_stops_handler_at_lease_renewal) ... ok
+test_sigkill_expires_lease_then_another_process_recovers_job (test_processes.WorkerProcessIntegrationTests.test_sigkill_expires_lease_then_another_process_recovers_job) ... ok
+test_sigterm_stops_claiming_and_drains_active_work (test_processes.WorkerProcessIntegrationTests.test_sigterm_stops_claiming_and_drains_active_work) ... ok
+test_three_processes_distribute_work_and_keep_a_single_valid_lease_owner (test_processes.WorkerProcessIntegrationTests.test_three_processes_distribute_work_and_keep_a_single_valid_lease_owner) ... ok
+test_worker_killed_after_claim_before_handler_start_is_reclaimed (test_processes.WorkerProcessIntegrationTests.test_worker_killed_after_claim_before_handler_start_is_reclaimed) ... ok
+test_worker_killed_after_handler_work_before_ack_repeats_idempotent_simulation (test_processes.WorkerProcessIntegrationTests.test_worker_killed_after_handler_work_before_ack_repeats_idempotent_simulation) ... ok
+test_claim_after_expiry_is_competed_and_only_one_new_generation_wins (test_repository.RepositoryIntegrationTests.test_claim_after_expiry_is_competed_and_only_one_new_generation_wins) ... ok
+test_database_connection_termination_is_detected_and_reconnected (test_repository.RepositoryIntegrationTests.test_database_connection_termination_is_detected_and_reconnected) ... ok
+test_expired_final_attempt_is_abandoned (test_repository.RepositoryIntegrationTests.test_expired_final_attempt_is_abandoned) ... ok
+test_idempotency_key_deduplicates_and_rejects_changed_contents (test_repository.RepositoryIntegrationTests.test_idempotency_key_deduplicates_and_rejects_changed_contents) ... ok
+test_operator_replay_preserves_source_and_creates_new_idempotent_handler_work (test_repository.RepositoryIntegrationTests.test_operator_replay_preserves_source_and_creates_new_idempotent_handler_work) ... ok
+test_repeated_failures_dead_letter_then_explicit_retry_and_replay (test_repository.RepositoryIntegrationTests.test_repeated_failures_dead_letter_then_explicit_retry_and_replay) ... ok
+test_retry_backoff_and_final_attempt_abandonment (test_repository.RepositoryIntegrationTests.test_retry_backoff_and_final_attempt_abandonment) ... ok
+test_stale_lease_token_cannot_complete_after_reclaim (test_repository.RepositoryIntegrationTests.test_stale_lease_token_cannot_complete_after_reclaim) ... ok
+test_two_independent_connections_cannot_claim_one_valid_lease (test_repository.RepositoryIntegrationTests.test_two_independent_connections_cannot_claim_one_valid_lease) ... ok
+test_worker_heartbeat_stale_threshold_is_operator_configurable (test_repository.RepositoryIntegrationTests.test_worker_heartbeat_stale_threshold_is_operator_configurable) ... ok
+test_resource_and_identity_bounds (test_runtime_config.WorkerConfigTests.test_resource_and_identity_bounds) ... ok
+test_disabled_schedule_is_not_materialized (test_scheduler.SchedulerIntegrationTests.test_disabled_schedule_is_not_materialized) ... ok
+test_scheduler_catches_up_without_coalescing_and_never_repeats_key (test_scheduler.SchedulerIntegrationTests.test_scheduler_catches_up_without_coalescing_and_never_repeats_key) ... ok
+test_two_scheduler_instances_do_not_duplicate_an_occurrence (test_scheduler.SchedulerIntegrationTests.test_two_scheduler_instances_do_not_duplicate_an_occurrence) ... ok
+test_ambiguous_fall_back_wall_time_runs_once_at_earlier_instant (test_scheduling.CronTimezoneTests.test_ambiguous_fall_back_wall_time_runs_once_at_earlier_instant) ... ok
+test_five_field_cron_in_timezone (test_scheduling.CronTimezoneTests.test_five_field_cron_in_timezone) ... ok
+test_invalid_cron_and_unknown_timezone_rejected (test_scheduling.CronTimezoneTests.test_invalid_cron_and_unknown_timezone_rejected) ... ok
+test_nonexistent_spring_forward_wall_time_is_skipped (test_scheduling.CronTimezoneTests.test_nonexistent_spring_forward_wall_time_is_skipped) ... ok
+
+----------------------------------------------------------------------
+Ran 49 tests in 65.115s
+
+OK
+
+> docker compose -p chronos-p6-test-2a2fa73c -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml down --volumes
+ Container chronos-p6-test-2a2fa73c-postgres-1 Stopping 
+ Container chronos-p6-test-2a2fa73c-postgres-1 Stopped 
+ Container chronos-p6-test-2a2fa73c-postgres-1 Removing 
+ Container chronos-p6-test-2a2fa73c-postgres-1 Removed 
+ Volume chronos-p6-test-2a2fa73c_pgdata Removing 
+ Network chronos-p6-test-2a2fa73c_default Removing 
+ Volume chronos-p6-test-2a2fa73c_pgdata Removed 
+ Network chronos-p6-test-2a2fa73c_default Removed 
+
+> docker compose -p chronos-p6-demo-2a2fa73c -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile control --profile workers up --build --detach
+ Image resilient-api-worker:chronos Building 
+ Image resilient-api-worker:chronos Building 
+ Image resilient-api-worker:chronos Building 
+ Image resilient-api-worker:chronos Building 
+ Image resilient-api-worker:chronos Building 
+ Image resilient-api-worker:chronos Building 
+ Image chronos-dashboard:local Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 3.61kB done
+#1 DONE 0.0s
+
+#2 [worker-2 internal] load build definition from Dockerfile.worker
+#2 transferring dockerfile: 531B done
+#2 DONE 0.0s
+
+#3 [dashboard internal] load build definition from Dockerfile.web
+#3 transferring dockerfile: 790B done
+#3 DONE 0.0s
+
+#4 [migrate internal] load metadata for docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#4 DONE 0.1s
+
+#5 [worker-2 internal] load .dockerignore
+#5 transferring context: 231B done
+#5 DONE 0.0s
+
+#6 [scheduler internal] load build context
+#6 DONE 0.0s
+
+#7 [worker-1 1/6] FROM docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#7 resolve docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534 0.1s done
+#7 resolve docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534 0.1s done
+#7 DONE 0.1s
+
+#6 [scheduler internal] load build context
+#6 transferring context: 1.96kB done
+#6 DONE 0.0s
+
+#8 [api 2/6] WORKDIR /app
+#8 CACHED
+
+#9 [api 3/6] COPY requirements.txt ./
+#9 CACHED
+
+#10 [api 4/6] RUN pip install --no-cache-dir --requirement requirements.txt
+#10 CACHED
+
+#11 [api 5/6] COPY worker_runtime ./worker_runtime
+#11 CACHED
+
+#12 [api 6/6] RUN groupadd --gid 10001 worker && useradd --uid 10001 --gid worker --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin worker
+#12 CACHED
+
+#13 [migrate] exporting to image
+#13 exporting layers done
+#13 exporting manifest sha256:8af12db429d831fb37924e8fab560b930cd4c540c92c9bacfb5f4c1d89dc011b
+#13 exporting manifest sha256:8af12db429d831fb37924e8fab560b930cd4c540c92c9bacfb5f4c1d89dc011b 0.2s done
+#13 exporting config sha256:43c7830a9af9cd43ab0e3529101af176d53b0a953a07bd94843f034204b41063
+#13 exporting config sha256:43c7830a9af9cd43ab0e3529101af176d53b0a953a07bd94843f034204b41063 0.2s done
+#13 exporting attestation manifest sha256:124885db07f879ed9deb1b6b85b0c030324aecca8c9ee4c2611f37ddb29c44d4
+#13 exporting attestation manifest sha256:124885db07f879ed9deb1b6b85b0c030324aecca8c9ee4c2611f37ddb29c44d4 0.3s done
+#13 exporting manifest list sha256:5abd865f1700f01e5182089c4264110aad1ce0a5af894c41cb03c71d121bad58
+#13 exporting manifest list sha256:5abd865f1700f01e5182089c4264110aad1ce0a5af894c41cb03c71d121bad58 0.2s done
+#13 naming to docker.io/library/resilient-api-worker:chronos
+#13 ...
+
+#14 [scheduler] exporting to image
+#14 exporting layers done
+#14 exporting manifest sha256:0690bda7b6a72e8184c2fc9aa5b6f5fc37ccff9ee815f491cb9bc211a877875b 0.2s done
+#14 exporting config sha256:73b9943b9f7b0f1298e7ecd0c504e9f7b2ee69eb2fd8aa8e93cb34d679b0d212 0.2s done
+#14 exporting attestation manifest sha256:3e3d90c407f93b00a5c9c82ae5db06e30dcc9eca18aa28b952fbe306019aab82 0.3s done
+#14 exporting manifest list sha256:5457bfad72acdb6fe6c987a2b27bb67a897fb54478eee5eea37ee69c462c25ad 0.2s done
+#14 naming to docker.io/library/resilient-api-worker:chronos 0.1s done
+#14 unpacking to docker.io/library/resilient-api-worker:chronos 0.1s done
+#14 DONE 1.4s
+
+#15 [worker-2] exporting to image
+#15 exporting layers done
+#15 exporting manifest sha256:09064c8744b7deca21613dcc3fc72b2505ef9149f180179e16725157b59dea69 0.2s done
+#15 exporting config sha256:2eedef20248e962f543ba6771480473f4d33d594782aa4dd3b7c81d31265230b 0.2s done
+#15 exporting attestation manifest sha256:67fc486cc3e2ddc726dbe1b27a3c9fb3a8e4e2e51718feefbc5c74248247b8c5 0.3s done
+#15 exporting manifest list sha256:091b2b0980d9cc31ce9e1f3dfe08c28a487421d0e3b87e54f1e9eb225bd50c3c 0.2s done
+#15 naming to docker.io/library/resilient-api-worker:chronos 0.1s done
+#15 unpacking to docker.io/library/resilient-api-worker:chronos 0.1s done
+#15 DONE 1.4s
+
+#16 [worker-1] exporting to image
+#16 exporting layers done
+#16 exporting manifest sha256:3e9ca53a380431388c0cbaf53f589097d6ca0edb6759b1466165890ee9fdc0ac 0.2s done
+#16 exporting config sha256:4fd88a56a1b5d240f18fc2267b4917c4579541c91eaf541a8e8c6dde5aa696e6 0.2s done
+#16 exporting attestation manifest sha256:397fc862cbcadd4d92f57a1ca1d3e832e77093e4d40050a335d311baef2e69af 0.3s done
+#16 exporting manifest list sha256:bc6605e09312be9523812c4952e499f81e34153d0e7e1f30821ab8c6652ba160 0.2s done
+#16 naming to docker.io/library/resilient-api-worker:chronos 0.1s done
+#16 unpacking to docker.io/library/resilient-api-worker:chronos 0.1s done
+#16 DONE 1.4s
+
+#13 [migrate] exporting to image
+#13 naming to docker.io/library/resilient-api-worker:chronos 0.0s done
+#13 unpacking to docker.io/library/resilient-api-worker:chronos 0.1s done
+#13 DONE 1.4s
+
+#17 [worker-3] exporting to image
+#17 exporting layers done
+#17 exporting manifest sha256:abe38ca8581689288ec3f1215c26574ec93d0e543c09324cce090c0f53a038a3 0.2s done
+#17 exporting config sha256:b6586dc80e878f0eb4c8418ac027c3b147e46c864c30a1cfc6f58dbfac4de98a 0.2s done
+#17 exporting attestation manifest sha256:2023cf4db5ff77c8b10b037fb5e54c4915a691f05a721ea550d6987bd6cfce1c 0.3s done
+#17 exporting manifest list sha256:4acd8271ff729528dcd50c2e7200513e597f508874425e4a7b2aff873cca8f51 0.2s done
+#17 naming to docker.io/library/resilient-api-worker:chronos 0.1s done
+#17 unpacking to docker.io/library/resilient-api-worker:chronos 0.1s done
+#17 DONE 1.4s
+
+#18 [api] exporting to image
+#18 exporting layers done
+#18 exporting manifest sha256:b9e7a09dcb493b408f68c9ba1080e902f20397e9efc543afadd2379f09332f3f 0.2s done
+#18 exporting config sha256:52fc9a3375831d586a0626884ac7068d427afdef1bfb8d817ff34c11ecf9432a 0.2s done
+#18 exporting attestation manifest sha256:9e9ef78a8b423dc8433d76b3369c086faf7f06b0f52ae295a2fc6f4b58a0422e 0.3s done
+#18 exporting manifest list sha256:813534e17608f3ae9c45fbb4ac88c11880d53cffe2b8abba7dd232bed0094b8d 0.2s done
+#18 naming to docker.io/library/resilient-api-worker:chronos 0.0s done
+#18 unpacking to docker.io/library/resilient-api-worker:chronos 0.1s done
+#18 DONE 1.4s
+
+#19 [dashboard internal] load metadata for docker.io/library/node:24-alpine
+#19 DONE 2.9s
+
+#5 [dashboard internal] load .dockerignore
+#5 transferring context: 231B done
+#5 DONE 0.0s
+
+#20 [dashboard internal] load build context
+#20 DONE 0.0s
+
+#21 [dashboard dependencies 1/4] FROM docker.io/library/node:24-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53
+#21 resolve docker.io/library/node:24-alpine@sha256:06d7adf3e0ef61a13f1d28682726366f97a15aa1888c934d3ecec86c33918b53 0.1s done
+#21 DONE 0.1s
+
+#22 [api] resolving provenance for metadata file
+#22 DONE 0.5s
+
+#20 [dashboard internal] load build context
+#20 transferring context: 1.19MB 0.1s done
+#20 DONE 0.2s
+
+#23 [dashboard dependencies 2/4] WORKDIR /app
+#23 CACHED
+
+#24 [dashboard dependencies 3/4] COPY web/package.json web/package-lock.json ./
+#24 CACHED
+
+#25 [dashboard dependencies 4/4] RUN npm ci --no-audit --no-fund
+#25 CACHED
+
+#26 [dashboard builder 3/5] COPY --from=dependencies /app/node_modules ./node_modules
+#26 CACHED
+
+#27 [dashboard builder 4/5] COPY web/ ./
+#27 DONE 0.2s
+
+#28 [scheduler] resolving provenance for metadata file
+#28 DONE 0.8s
+
+#29 [worker-1] resolving provenance for metadata file
+#29 DONE 0.6s
+
+#30 [worker-2] resolving provenance for metadata file
+#30 DONE 0.8s
+
+#31 [worker-3] resolving provenance for metadata file
+#31 DONE 0.2s
+
+#32 [migrate] resolving provenance for metadata file
+#32 DONE 0.0s
+
+#33 [dashboard builder 5/5] RUN npm run build
+#33 0.713 
+#33 0.713 > web@0.1.0 build
+#33 0.713 > next build
+#33 0.713 
+#33 1.243 ▲ Next.js 16.4.3 (Turbopack)
+#33 1.299 ✓ Running next.config.ts took 53ms
+#33 1.313 
+#33 1.348   Creating an optimized production build ...
+#33 6.973 ✓ Compiled successfully in 5.6s
+#33 6.977   Running TypeScript ...
+#33 14.35   Finished TypeScript in 7.4s ...
+#33 14.35   Collecting page data using 11 workers ...
+#33 15.84   Generating static pages using 11 workers (0/15) ...
+#33 16.88   Generating static pages using 11 workers (3/15) 
+#33 16.89   Generating static pages using 11 workers (7/15) 
+#33 16.94   Generating static pages using 11 workers (11/15) 
+#33 17.21 ✓ Generating static pages using 11 workers (15/15) in 1375ms
+#33 17.23   Finalizing page optimization ...
+#33 17.66 
+#33 17.66 Route (app)
+#33 17.66 ┌ ○ /
+#33 17.66 ├ ○ /_not-found
+#33 17.66 ├ ƒ /api/chronos/[...path]
+#33 17.66 ├ ƒ /api/demo/actions/[action]
+#33 17.66 ├ ƒ /api/demo/status
+#33 17.66 ├ ƒ /api/healthz
+#33 17.66 ├ ○ /dead-letter
+#33 17.66 ├ ƒ /docs
+#33 17.66 ├ ○ /gateway
+#33 17.66 ├ ƒ /jobs
+#33 17.66 ├ ƒ /jobs/[jobId]
+#33 17.66 ├ ○ /jobs/new
+#33 17.66 ├ ○ /observability
+#33 17.66 ├ ƒ /openapi.json
+#33 17.66 ├ ○ /schedules
+#33 17.66 ├ ○ /settings
+#33 17.66 └ ○ /workers
+#33 17.66 
+#33 17.66 
+#33 17.66 ○  (Static)   prerendered as static content
+#33 17.66 ƒ  (Dynamic)  server-rendered on demand
+#33 17.66 
+#33 17.72 npm notice
+#33 17.72 npm notice New major version of npm available! 11.19.1 -> 12.2.1
+#33 17.72 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+#33 17.72 npm notice To update run: npm install -g npm@12.2.1
+#33 17.72 npm notice
+#33 DONE 17.8s
+
+#34 [dashboard runtime 3/6] RUN addgroup -S -g 10001 chronos && adduser -S -u 10001 -G chronos -H -h /nonexistent chronos
+#34 CACHED
+
+#35 [dashboard runtime 4/6] COPY --from=builder --chown=chronos:chronos /app/public ./public
+#35 CACHED
+
+#36 [dashboard runtime 5/6] COPY --from=builder --chown=chronos:chronos /app/.next/standalone ./
+#36 DONE 0.5s
+
+#37 [dashboard runtime 6/6] COPY --from=builder --chown=chronos:chronos /app/.next/static ./.next/static
+#37 DONE 0.2s
+
+#38 [dashboard] exporting to image
+#38 exporting layers
+#38 exporting layers 1.4s done
+#38 exporting manifest sha256:c293b70189e0210e2c7af906a12f86c734775be54bb6554a9ccc2ded18dee32f 0.0s done
+#38 exporting config sha256:62c4a5fb7da1dd093164dcc4fc6c8e475f3675459c901ad3f85485810da2e9c5 0.0s done
+#38 exporting attestation manifest sha256:f66cc7af834725173d42b194a87544a16879076acd18d05900713a145527817b
+#38 exporting attestation manifest sha256:f66cc7af834725173d42b194a87544a16879076acd18d05900713a145527817b 0.1s done
+#38 exporting manifest list sha256:1e7ab507fe1c8dbddce3cd0886ddf5fb11dd32e9865f9905660fa5d7aa82b471 0.0s done
+#38 naming to docker.io/library/chronos-dashboard:local
+#38 naming to docker.io/library/chronos-dashboard:local done
+#38 unpacking to docker.io/library/chronos-dashboard:local
+#38 unpacking to docker.io/library/chronos-dashboard:local 0.7s done
+#38 DONE 2.4s
+
+#39 [dashboard] resolving provenance for metadata file
+#39 DONE 0.0s
+ Image chronos-dashboard:local Built 
+ Image resilient-api-worker:chronos Built 
+ Image resilient-api-worker:chronos Built 
+ Image resilient-api-worker:chronos Built 
+ Image resilient-api-worker:chronos Built 
+ Image resilient-api-worker:chronos Built 
+ Image resilient-api-worker:chronos Built 
+ Network chronos-p6-demo-2a2fa73c_default Creating 
+ Volume chronos-p6-demo-2a2fa73c_pgdata Creating 
+ Volume chronos-p6-demo-2a2fa73c_pgdata Creating 
+ Network chronos-p6-demo-2a2fa73c_default Creating 
+ Volume chronos-p6-demo-2a2fa73c_pgdata Created 
+ Volume chronos-p6-demo-2a2fa73c_pgdata Created 
+ Network chronos-p6-demo-2a2fa73c_default Created 
+ Network chronos-p6-demo-2a2fa73c_default Created 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Creating 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Created 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Creating 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Created 
+ Container chronos-p6-demo-2a2fa73c-worker-3-1 Creating 
+ Container chronos-p6-demo-2a2fa73c-scheduler-1 Creating 
+ Container chronos-p6-demo-2a2fa73c-worker-2-1 Creating 
+ Container chronos-p6-demo-2a2fa73c-worker-1-1 Creating 
+ Container chronos-p6-demo-2a2fa73c-api-1 Creating 
+ Container chronos-p6-demo-2a2fa73c-worker-1-1 Created 
+ Container chronos-p6-demo-2a2fa73c-scheduler-1 Created 
+ Container chronos-p6-demo-2a2fa73c-worker-3-1 Created 
+ Container chronos-p6-demo-2a2fa73c-api-1 Created 
+ Container chronos-p6-demo-2a2fa73c-dashboard-1 Creating 
+ Container chronos-p6-demo-2a2fa73c-worker-2-1 Created 
+ Container chronos-p6-demo-2a2fa73c-dashboard-1 Created 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Starting 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Started 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Healthy 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Starting 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Started 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Waiting 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Healthy 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Healthy 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Healthy 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Healthy 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Healthy 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Exited 
+ Container chronos-p6-demo-2a2fa73c-api-1 Starting 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Exited 
+ Container chronos-p6-demo-2a2fa73c-worker-3-1 Starting 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Exited 
+ Container chronos-p6-demo-2a2fa73c-worker-2-1 Starting 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Exited 
+ Container chronos-p6-demo-2a2fa73c-worker-1-1 Starting 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Exited 
+ Container chronos-p6-demo-2a2fa73c-scheduler-1 Starting 
+ Container chronos-p6-demo-2a2fa73c-api-1 Started 
+ Container chronos-p6-demo-2a2fa73c-dashboard-1 Starting 
+ Container chronos-p6-demo-2a2fa73c-worker-3-1 Started 
+ Container chronos-p6-demo-2a2fa73c-worker-2-1 Started 
+ Container chronos-p6-demo-2a2fa73c-worker-1-1 Started 
+ Container chronos-p6-demo-2a2fa73c-scheduler-1 Started 
+ Container chronos-p6-demo-2a2fa73c-dashboard-1 Started 
+Dashboard /, /docs and /openapi.json returned 200; authenticated same-origin API proxy returned live PostgreSQL queue state.
+
+> npm --prefix web run test:e2e
+
+> web@0.1.0 test:e2e
+> playwright test
+
+
+Running 2 tests using 1 worker
+
+(node:17220) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok 1 e2e\chronos-journeys.spec.ts:18:5 › connection screen and same-origin proxy enforce bearer authentication (1.9s)
+  ok 2 e2e\chronos-journeys.spec.ts:31:5 › operator journey covers queue, replay, cancellation, schedules, workers, metrics and settings (27.5s)
+
+  2 passed (31.8s)
+E2E created a real job through the UI; source job 1 completed successfully.
+
+> docker compose -p chronos-p6-demo-2a2fa73c -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile control --profile workers logs --no-color dashboard api scheduler worker-1 worker-2 worker-3
+dashboard-1  | ▲ Next.js 16.4.3
+dashboard-1  | - Local:         http://localhost:3000
+dashboard-1  | - Network:       http://0.0.0.0:3000
+dashboard-1  | ✓ Ready in 0ms
+dashboard-1  | ✓ Running next.config took 2ms
+worker-2-1   | {"time":"2026-10-27T19:05:38Z","level":"info","event":"worker.starting","worker_id":"58a5b30e-2590-4325-86a9-83732fb79dc1","name":"worker-2","concurrency":2,"pid":1}
+worker-2-1   | {"time":"2026-10-27T19:05:38Z","level":"info","event":"worker.started","worker_id":"58a5b30e-2590-4325-86a9-83732fb79dc1","name":"worker-2"}
+worker-1-1   | {"time":"2026-10-27T19:05:38Z","level":"info","event":"worker.starting","worker_id":"f1f5ff4d-254e-4c61-91b3-659f03a6ba12","name":"worker-1","concurrency":2,"pid":1}
+worker-1-1   | {"time":"2026-10-27T19:05:38Z","level":"info","event":"worker.started","worker_id":"f1f5ff4d-254e-4c61-91b3-659f03a6ba12","name":"worker-1"}
+worker-3-1   | {"time":"2026-10-27T19:05:38Z","level":"info","event":"worker.starting","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","name":"worker-3","concurrency":2,"pid":1}
+worker-3-1   | {"time":"2026-10-27T19:05:38Z","level":"info","event":"worker.started","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","name":"worker-3"}
+worker-3-1   | {"time":"2026-10-27T19:05:40Z","level":"info","event":"job.claimed","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","job_id":1,"job_type":"synthetic_report","attempt":1,"generation":1}
+worker-3-1   | {"time":"2026-10-27T19:05:40Z","level":"info","event":"job.started","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","job_id":1,"job_type":"synthetic_report","attempt":1,"generation":1,"runtime_timeout":10.0}
+worker-3-1   | {"time":"2026-10-27T19:05:41Z","level":"info","event":"job.succeeded","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","job_id":1,"job_type":"synthetic_report","attempt":1}
+worker-3-1   | {"time":"2026-10-27T19:05:48Z","level":"info","event":"job.claimed","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","job_id":3,"job_type":"synthetic_report","attempt":1,"generation":1}
+worker-3-1   | {"time":"2026-10-27T19:05:48Z","level":"info","event":"job.started","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","job_id":3,"job_type":"synthetic_report","attempt":1,"generation":1,"runtime_timeout":10.0}
+worker-3-1   | {"time":"2026-10-27T19:05:49Z","level":"info","event":"job.succeeded","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","job_id":3,"job_type":"synthetic_report","attempt":1}
+worker-3-1   | {"time":"2026-10-27T19:06:04Z","level":"info","event":"job.claimed","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","job_id":4,"job_type":"synthetic_report","attempt":1,"generation":1}
+worker-3-1   | {"time":"2026-10-27T19:06:04Z","level":"info","event":"job.started","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","job_id":4,"job_type":"synthetic_report","attempt":1,"generation":1,"runtime_timeout":10.0}
+worker-3-1   | {"time":"2026-10-27T19:06:05Z","level":"info","event":"job.succeeded","worker_id":"78fbc5c6-34ce-4879-a145-d2bd3f3d297b","job_id":4,"job_type":"synthetic_report","attempt":1}
+scheduler-1  | {"event":"scheduler.starting","poll_interval":1.0}
+api-1        | INFO:     Started server process [1]
+api-1        | INFO:     Waiting for application startup.
+api-1        | INFO:     Application startup complete.
+api-1        | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+Captured dashboard, API, scheduler and three worker process logs above.
+
+> docker compose -p chronos-p6-demo-2a2fa73c -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile control --profile workers down --volumes
+ Container chronos-p6-demo-2a2fa73c-dashboard-1 Stopping 
+ Container chronos-p6-demo-2a2fa73c-scheduler-1 Stopping 
+ Container chronos-p6-demo-2a2fa73c-worker-3-1 Stopping 
+ Container chronos-p6-demo-2a2fa73c-worker-1-1 Stopping 
+ Container chronos-p6-demo-2a2fa73c-worker-2-1 Stopping 
+ Container chronos-p6-demo-2a2fa73c-dashboard-1 Stopped 
+ Container chronos-p6-demo-2a2fa73c-dashboard-1 Removing 
+ Container chronos-p6-demo-2a2fa73c-dashboard-1 Removed 
+ Container chronos-p6-demo-2a2fa73c-api-1 Stopping 
+ Container chronos-p6-demo-2a2fa73c-worker-3-1 Stopped 
+ Container chronos-p6-demo-2a2fa73c-worker-3-1 Removing 
+ Container chronos-p6-demo-2a2fa73c-scheduler-1 Stopped 
+ Container chronos-p6-demo-2a2fa73c-scheduler-1 Removing 
+ Container chronos-p6-demo-2a2fa73c-worker-3-1 Removed 
+ Container chronos-p6-demo-2a2fa73c-worker-2-1 Stopped 
+ Container chronos-p6-demo-2a2fa73c-worker-2-1 Removing 
+ Container chronos-p6-demo-2a2fa73c-worker-1-1 Stopped 
+ Container chronos-p6-demo-2a2fa73c-worker-1-1 Removing 
+ Container chronos-p6-demo-2a2fa73c-scheduler-1 Removed 
+ Container chronos-p6-demo-2a2fa73c-worker-2-1 Removed 
+ Container chronos-p6-demo-2a2fa73c-worker-1-1 Removed 
+ Container chronos-p6-demo-2a2fa73c-api-1 Stopped 
+ Container chronos-p6-demo-2a2fa73c-api-1 Removing 
+ Container chronos-p6-demo-2a2fa73c-api-1 Removed 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Stopping 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Stopped 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Removing 
+ Container chronos-p6-demo-2a2fa73c-migrate-1 Removed 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Stopping 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Stopped 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Removing 
+ Container chronos-p6-demo-2a2fa73c-postgres-1 Removed 
+ Network chronos-p6-demo-2a2fa73c_default Removing 
+ Volume chronos-p6-demo-2a2fa73c_pgdata Removing 
+ Volume chronos-p6-demo-2a2fa73c_pgdata Removed 
+ Network chronos-p6-demo-2a2fa73c_default Removed 
+Result: 49 PostgreSQL-backed tests, live dashboard/API smoke, and Playwright user journeys passed.

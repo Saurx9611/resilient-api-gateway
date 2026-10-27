@@ -1,0 +1,11 @@
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\go.exe version
+go version go1.27.3 windows/amd64
+exit=0
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\gofmt.exe -l cmd internal
+exit=0
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\go.exe vet ./...
+exit=0
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\go.exe build -o bin/ ./cmd/...
+exit=0
+$ git diff --check
+exit=0

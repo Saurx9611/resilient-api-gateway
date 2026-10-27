@@ -1,0 +1,88 @@
+Phase 8 deployment foundation verification
+Date: 2026-10-28
+Host: Windows amd64
+
+Tool versions
+------------
+Go: go version go1.27.3 windows/amd64
+Node: v24.21.0
+npm: 11.19.0
+Docker client (repo-local): 27.5.1, API 1.47
+
+Passed commands
+---------------
+.\tools\go\bin\go.exe test ./...
+Result: exit 0. All Go packages passed. REDIS_TEST_URL was unset; tests requiring
+external real Redis were skipped by the existing integration harness.
+
+.\tools\go\bin\go.exe test -race ./...
+Result: exit 0. All Go packages passed; no race report.
+
+.\tools\go\bin\go.exe vet ./...
+Result: exit 0; no findings.
+
+.\tools\go\bin\go.exe build -o bin/ ./cmd/...
+Result: exit 0.
+
+.\tools\go\bin\gofmt.exe -l cmd internal
+Result: no output.
+
+From web/: npm.cmd run lint
+Result: exit 0; ESLint emitted no diagnostics.
+
+From web/: npx.cmd tsc --noEmit
+Result: exit 0; no diagnostics.
+
+From web/: npm.cmd run build
+Result: exit 0. Next.js 16.4.3 completed optimized build, TypeScript, page data,
+15/15 static page generation and route listing. `/api/healthz` was included.
+
+YAML parser: js-yaml loaded compose.yaml, render.yaml and .github/workflows/ci.yml.
+Result: YAML parse: PASS.
+
+CI: static workflow review only. GitHub Actions execution is unavailable until
+the repository is pushed/connected to its remote; no CI badge or green run is
+claimed.
+
+Blocked/unrun checks
+--------------------
+The first Docker client call could not access the Docker Engine named pipe.
+After requesting Engine access, Docker 27.5.1 built these images successfully:
+
+- `docker build -t resilient-gateway:phase8 .`
+- `docker build -f Dockerfile.upstream -t resilient-upstream:phase8 .`
+- `docker build -f Dockerfile.web -t resilient-dashboard:phase8 .`
+
+`docker image inspect` reported gateway user `10001:10001`, size 32,527,978
+bytes, `/readyz` healthcheck; upstream user `10001:10001`, size 28,611,563
+bytes, `/healthz` healthcheck; dashboard user `10001:10001`, size 304,957,150
+bytes, `/api/healthz` healthcheck. These are Docker-reported image sizes; no
+size target was asserted. The Next runtime image is materially larger than the
+Go images.
+
+Runtime identity command:
+`docker run --rm --entrypoint /bin/busybox <image> id`
+Result for gateway/upstream: `uid=10001(gateway) gid=10001(gateway) groups=10001(gateway)`.
+Result for dashboard: `uid=10001(chronos) gid=10001(chronos) groups=10001(chronos)`.
+
+`docker compose version` still reports that Compose is not a Docker command in
+the installed CLI. Compose config/up, container HTTP readiness, and local HTTP
+smoke were NOT run. The CI workflow now runs Compose checks on its Docker-enabled
+GitHub runner; that remote workflow has not run from this repo.
+
+No provider credentials, Render service IDs, or deployed URL were available.
+No deployment, public URL, or remote smoke test was performed. There are no
+verified hosted URLs to report. The exact operator checklist is in
+docs/deployment.md.
+
+Source-level targeted evidence
+------------------------------
+`TestMetricsBearerAuthDoesNotProtectHealth`: no Authorization -> 401; incorrect
+token -> 401; raw token without Bearer scheme -> 401; correct bearer -> 200;
+lowercase bearer scheme also works;
+`/healthz` remains 200.
+`TestListenerAndUpstreamDeploymentValidation`: wildcard listener without a
+metrics token rejected; short token rejected; loopback IPs accepted; wildcard
+and unspecified listeners classified non-loopback; malformed/non-numeric/
+out-of-range upstream hostports rejected; malformed bearer-token characters and
+reusing the demo token for metrics rejected. These run in both Go suites above.

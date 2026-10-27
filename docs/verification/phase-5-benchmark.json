@@ -1,0 +1,81 @@
+{
+  "schema": "rag-bench-v1",
+  "utc": "2026-10-27T18:03:07Z",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "logical_cpu_count": 12,
+    "go_version": "go version go1.27.3 windows/amd64",
+    "payload_bytes": 1024,
+    "http": "HTTP/1.1 cleartext loopback keep-alive",
+    "redis": "loopback; admission enabled",
+    "warmup": "one unmeasured direct and proxied request; first startup excluded",
+    "test_duration": "per scenario recorded",
+    "concurrency": 2,
+    "requested_requests": 100,
+    "limitations": "single host Python ThreadingHTTPServer fixture; Python client and upstream may dominate; no TLS; sample percentiles use nearest-rank index; no production inference"
+  },
+  "scenarios": [
+    {
+      "name": "direct",
+      "requests": 100,
+      "concurrency": 2,
+      "duration_seconds": 0.147485,
+      "requests_per_second": 678.034,
+      "statuses": {
+        "200": 100
+      },
+      "errors": 0,
+      "error_percent": 0.0,
+      "p50_ms": 1.342,
+      "p95_ms": 13.998,
+      "p99_ms": 22.69
+    },
+    {
+      "name": "proxied",
+      "requests": 100,
+      "concurrency": 2,
+      "duration_seconds": 0.218732,
+      "requests_per_second": 457.181,
+      "statuses": {
+        "200": 100
+      },
+      "errors": 0,
+      "error_percent": 0.0,
+      "p50_ms": 3.081,
+      "p95_ms": 10.89,
+      "p99_ms": 20.186
+    },
+    {
+      "name": "429_fail_fast",
+      "requests": 40,
+      "concurrency": 2,
+      "duration_seconds": 0.07172,
+      "requests_per_second": 557.721,
+      "statuses": {
+        "429": 40
+      },
+      "errors": 0,
+      "error_percent": 0.0,
+      "p50_ms": 2.212,
+      "p95_ms": 6.048,
+      "p99_ms": 19.058
+    },
+    {
+      "name": "circuit_open_fail_fast",
+      "requests": 40,
+      "concurrency": 2,
+      "duration_seconds": 0.098473,
+      "requests_per_second": 406.202,
+      "statuses": {
+        "503": 40
+      },
+      "errors": 0,
+      "error_percent": 0.0,
+      "p50_ms": 2.151,
+      "p95_ms": 22.806,
+      "p99_ms": 25.527
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+.git
+.tools
+.gocache
+.gopath
+bin
+.venv
+web/node_modules
+web/.next
+worker_runtime/.venv
+worker_runtime/__pycache__
+__pycache__
+*.py[cod]
+*.test
+coverage.out
+*.prof
+*.pprof
+docs/verification

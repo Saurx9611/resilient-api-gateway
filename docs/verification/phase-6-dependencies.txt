@@ -1,0 +1,29 @@
+Dependency security check (2026-10-27)
+Repository: resilient-api-gateway; Go 1.27.3; Windows amd64
+
+Command:
+go mod verify
+Result: all modules verified
+
+Command:
+go list -m all
+Result:
+example.com/resilient-api-gateway
+github.com/bsm/ginkgo/v2 v2.12.0
+github.com/bsm/gomega v1.27.10
+github.com/cespare/xxhash/v2 v2.3.0
+github.com/klauspost/cpuid/v2 v2.4.0
+github.com/redis/go-redis/v9 v9.23.0
+github.com/stretchr/testify v1.12.1
+github.com/zeebo/xxh3 v1.1.0
+go.uber.org/atomic v1.12.0
+go.yaml.in/yaml/v3 v3.0.5
+golang.org/x/sys v0.48.0
+
+Command:
+go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+Tool resolved as golang.org/x/vuln v1.9.0. Result: No vulnerabilities found.
+The scanner and vulnerability database were fetched during this check; this is
+the result for the module graph and reachable symbols at this date, not a future
+or production guarantee. govulncheck was run ephemerally and was not added to
+go.mod/go.sum.

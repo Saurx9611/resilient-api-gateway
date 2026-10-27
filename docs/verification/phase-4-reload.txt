@@ -1,0 +1,487 @@
+Phase 4 gateway reload/readiness verification 2026-10-27T17:47:00.613599+00:00
+Windows amd64; Go 1.27.3; CGO=1; Redis 8.10.3 isolated Docker Linux container noeviction 64MiB, loopback port; REDIS_TEST_URL set. No worker changes.
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\go.exe version
+go version go1.27.3 windows/amd64
+
+exit=0
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\gofmt.exe -w internal/gateway internal/server/server.go internal/server/readiness_test.go internal/ratelimit/limiter.go cmd/gateway
+
+exit=0
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\gofmt.exe -l cmd internal
+
+exit=0
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\go.exe test -v -count=1 -timeout 90s ./...
+=== RUN   TestConfigFileGatewayProcess
+--- PASS: TestConfigFileGatewayProcess (0.00s)
+=== RUN   TestConfigCLIProcessReloadAndRestoration
+    config_process_test.go:128: real Redis and native gateway process: file polling rejected unsafe target, retained old route, restored new route, readiness 200; no public reload endpoint
+--- PASS: TestConfigCLIProcessReloadAndRestoration (0.85s)
+=== RUN   TestHelp
+--- PASS: TestHelp (0.00s)
+=== RUN   TestInvalidStartup
+--- PASS: TestInvalidStartup (0.00s)
+=== RUN   TestGatewayRedisProcess
+--- PASS: TestGatewayRedisProcess (0.00s)
+=== RUN   TestRedisTwoGatewayProcesses
+    redis_integration_test.go:109: two independent OS processes: admissions=[10 10] total=20; 60 HTTP 429; spoofed forwarding identities ignored
+--- PASS: TestRedisTwoGatewayProcesses (0.11s)
+=== RUN   TestWatchConfigInvalidMissingAndRestoration
+--- PASS: TestWatchConfigInvalidMissingAndRestoration (0.06s)
+PASS
+ok  	example.com/resilient-api-gateway/cmd/gateway	2.742s
+?   	example.com/resilient-api-gateway/cmd/upstream-sim	[no test files]
+=== RUN   TestTransitionsAndRecovery
+--- PASS: TestTransitionsAndRecovery (0.00s)
+=== RUN   TestHalfOpenFailureAndStaleProbes
+--- PASS: TestHalfOpenFailureAndStaleProbes (0.00s)
+=== RUN   TestSimultaneousProbeAdmission
+    breaker_test.go:142: 100 simultaneous admissions: exactly 3 probes; duplicate completions ignored; recovered after 5 successes
+--- PASS: TestSimultaneousProbeAdmission (0.00s)
+=== RUN   TestPoliciesAndInstances
+--- PASS: TestPoliciesAndInstances (0.00s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/breaker	0.389s
+=== RUN   TestCircuitOutcomeClassification
+=== RUN   TestCircuitOutcomeClassification/success
+=== RUN   TestCircuitOutcomeClassification/client_404
+=== RUN   TestCircuitOutcomeClassification/client_429
+=== RUN   TestCircuitOutcomeClassification/upstream_500
+=== RUN   TestCircuitOutcomeClassification/upstream_503
+=== RUN   TestCircuitOutcomeClassification/transport
+=== RUN   TestCircuitOutcomeClassification/truncated_body
+=== RUN   TestCircuitOutcomeClassification/client_cancellation
+=== RUN   TestCircuitOutcomeClassification/gateway_deadline
+=== RUN   TestCircuitOutcomeClassification/upload_error
+=== RUN   TestCircuitOutcomeClassification/abandoned_body
+--- PASS: TestCircuitOutcomeClassification (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/success (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/client_404 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/client_429 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/upstream_500 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/upstream_503 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/transport (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/truncated_body (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/client_cancellation (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/gateway_deadline (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/upload_error (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/abandoned_body (0.00s)
+=== RUN   TestRealRedisConnectionLossPolicies
+2026/10/27 23:17:05 WARN rate limiter dependency failure route=one policy=fail_closed
+2026/10/27 23:17:05 WARN rate limiter dependency failure route=two policy=fail_open
+--- PASS: TestRealRedisConnectionLossPolicies (0.01s)
+=== RUN   TestAdmissionHeadersAndNoBodyRead
+--- PASS: TestAdmissionHeadersAndNoBodyRead (0.00s)
+=== RUN   TestAdmissionOutagePoliciesAndHooks
+--- PASS: TestAdmissionOutagePoliciesAndHooks (0.00s)
+=== RUN   TestAdmissionSuccessOwnsHeadersAndConsumesOnce
+--- PASS: TestAdmissionSuccessOwnsHeadersAndConsumesOnce (0.00s)
+=== RUN   TestInvalidPeerNeverFailsOpen
+--- PASS: TestInvalidPeerNeverFailsOpen (0.00s)
+=== RUN   TestCanceledAdmissionCannotFailOpen
+--- PASS: TestCanceledAdmissionCannotFailOpen (0.00s)
+=== RUN   TestCircuitHTTPTransitionsAndIsolation
+--- PASS: TestCircuitHTTPTransitionsAndIsolation (0.00s)
+=== RUN   TestCircuitSharedOriginAndTransportFailure
+--- PASS: TestCircuitSharedOriginAndTransportFailure (0.00s)
+=== RUN   TestCircuitConcurrentHTTPProbes
+--- PASS: TestCircuitConcurrentHTTPProbes (0.01s)
+=== RUN   TestCircuitClientCancellationNeutral
+--- PASS: TestCircuitClientCancellationNeutral (0.00s)
+=== RUN   TestCircuitStreamedFailureKeepsProbeSlot
+--- PASS: TestCircuitStreamedFailureKeepsProbeSlot (0.00s)
+=== RUN   TestConfigDocumentValidationAndLastGood
+--- PASS: TestConfigDocumentValidationAndLastGood (0.01s)
+=== RUN   TestUpstreamFailureMapping
+=== RUN   TestUpstreamFailureMapping/disconnect
+=== RUN   TestUpstreamFailureMapping/response-header-timeout
+=== RUN   TestUpstreamFailureMapping/request-deadline
+--- PASS: TestUpstreamFailureMapping (0.17s)
+    --- PASS: TestUpstreamFailureMapping/disconnect (0.00s)
+    --- PASS: TestUpstreamFailureMapping/response-header-timeout (0.08s)
+    --- PASS: TestUpstreamFailureMapping/request-deadline (0.09s)
+=== RUN   TestUpstreamStatusAndRedirectPreserved
+--- PASS: TestUpstreamStatusAndRedirectPreserved (0.00s)
+=== RUN   TestUpstreamTLSVerification
+2026/10/27 23:17:05 http: TLS handshake error from 127.0.0.1:49819: remote error: tls: bad certificate
+--- PASS: TestUpstreamTLSVerification (0.03s)
+=== RUN   TestSharedConnectionBudgetAndReuse
+--- PASS: TestSharedConnectionBudgetAndReuse (0.08s)
+=== RUN   TestUpstreamResponseHeaderBudget
+--- PASS: TestUpstreamResponseHeaderBudget (0.00s)
+=== RUN   TestForwardingAndStaticRoutes
+=== RUN   TestForwardingAndStaticRoutes/one/GET
+=== RUN   TestForwardingAndStaticRoutes/one/HEAD
+=== RUN   TestForwardingAndStaticRoutes/one/POST
+=== RUN   TestForwardingAndStaticRoutes/one/PUT
+=== RUN   TestForwardingAndStaticRoutes/one/PATCH
+=== RUN   TestForwardingAndStaticRoutes/one/DELETE
+=== RUN   TestForwardingAndStaticRoutes/one/OPTIONS
+=== RUN   TestForwardingAndStaticRoutes/two/GET
+=== RUN   TestForwardingAndStaticRoutes/two/HEAD
+=== RUN   TestForwardingAndStaticRoutes/two/POST
+=== RUN   TestForwardingAndStaticRoutes/two/PUT
+=== RUN   TestForwardingAndStaticRoutes/two/PATCH
+=== RUN   TestForwardingAndStaticRoutes/two/DELETE
+=== RUN   TestForwardingAndStaticRoutes/two/OPTIONS
+--- PASS: TestForwardingAndStaticRoutes (0.01s)
+    --- PASS: TestForwardingAndStaticRoutes/one/GET (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/HEAD (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/POST (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/PUT (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/PATCH (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/DELETE (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/OPTIONS (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/GET (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/HEAD (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/POST (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/PUT (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/PATCH (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/DELETE (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/OPTIONS (0.00s)
+=== RUN   TestForwardingTrustAndHopHeaders
+--- PASS: TestForwardingTrustAndHopHeaders (0.00s)
+=== RUN   TestActualTLSForwardingProto
+--- PASS: TestActualTLSForwardingProto (0.00s)
+=== RUN   TestRouteBoundariesAndMalformedInputs
+=== RUN   TestRouteBoundariesAndMalformedInputs//one
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/
+=== RUN   TestRouteBoundariesAndMalformedInputs//two/a%20b?x=%2F
+=== RUN   TestRouteBoundariesAndMalformedInputs//
+=== RUN   TestRouteBoundariesAndMalformedInputs//oneevil
+=== RUN   TestRouteBoundariesAndMalformedInputs//unknown
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/../two
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/%2e%2e/two
+=== RUN   TestRouteBoundariesAndMalformedInputs//one//x
+=== RUN   TestRouteBoundariesAndMalformedInputs//one%2Fx
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/x%5cy
+=== RUN   TestRouteBoundariesAndMalformedInputs//%6fne/x
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/%00
+=== RUN   TestRouteBoundariesAndMalformedInputs//one?x=%zz
+=== RUN   TestRouteBoundariesAndMalformedInputs//one?x=1;y=2
+--- PASS: TestRouteBoundariesAndMalformedInputs (0.01s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/ (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//two/a%20b?x=%2F (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs// (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//oneevil (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//unknown (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/../two (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/%2e%2e/two (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one//x (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one%2Fx (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/x%5cy (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//%6fne/x (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/%00 (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one?x=%zz (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one?x=1;y=2 (0.00s)
+=== RUN   TestRejectsUpgradeAndAbsoluteTarget
+--- PASS: TestRejectsUpgradeAndAbsoluteTarget (0.00s)
+=== RUN   TestRejectsInvalidOperatorTargets
+--- PASS: TestRejectsInvalidOperatorTargets (0.00s)
+=== RUN   TestRequestTrailersExplicitlyUnsupported
+--- PASS: TestRequestTrailersExplicitlyUnsupported (0.00s)
+=== RUN   TestRealRedisOutageReloadReadinessAndRecovery
+    redis_reload_test.go:191: real Redis: required/policy readiness, fail-open/closed requests, restore without restart, quota retained across reload and health probes; final quota rejection 429
+--- PASS: TestRealRedisOutageReloadReadinessAndRecovery (0.02s)
+=== RUN   TestReloadDuringConcurrentLongStreams
+    reload_test.go:145: 16 old streams completed across 21 valid swaps; new traffic used new target; invalid candidate retained last good version; restoration passed
+--- PASS: TestReloadDuringConcurrentLongStreams (0.02s)
+=== RUN   TestReloadRetainsSelectedAdmissionPolicy
+--- PASS: TestReloadRetainsSelectedAdmissionPolicy (0.00s)
+=== RUN   TestReloadKeepsOldTargetBeforeRedisCompletes
+--- PASS: TestReloadKeepsOldTargetBeforeRedisCompletes (0.00s)
+=== RUN   TestReloadPreservesCircuitsForRetainedOrigins
+--- PASS: TestReloadPreservesCircuitsForRetainedOrigins (0.00s)
+=== RUN   TestConcurrentReloadWritersAndNoop
+--- PASS: TestConcurrentReloadWritersAndNoop (0.00s)
+=== RUN   TestStreamingUpload
+--- PASS: TestStreamingUpload (0.00s)
+=== RUN   TestStreamingResponse
+--- PASS: TestStreamingResponse (0.00s)
+=== RUN   TestEarlyResponseWithoutDrainingUpload
+--- PASS: TestEarlyResponseWithoutDrainingUpload (0.50s)
+=== RUN   TestRejectsBeforeApplicationBodyRead
+--- PASS: TestRejectsBeforeApplicationBodyRead (0.00s)
+=== RUN   TestClientCancellationReachesUpstream
+--- PASS: TestClientCancellationReachesUpstream (0.00s)
+=== RUN   TestStreamDisconnectAbortsResponse
+--- PASS: TestStreamDisconnectAbortsResponse (0.00s)
+=== RUN   TestResponseDeadlineAfterHeadersAbortsStream
+--- PASS: TestResponseDeadlineAfterHeadersAbortsStream (0.25s)
+=== RUN   TestRejectedUploadRespondsWithoutWaitingForBody
+--- PASS: TestRejectedUploadRespondsWithoutWaitingForBody (0.50s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/gateway	3.501s
+=== RUN   TestPeerIdentity
+--- PASS: TestPeerIdentity (0.00s)
+=== RUN   TestInvalidLimiterConfiguration
+--- PASS: TestInvalidLimiterConfiguration (0.00s)
+=== RUN   TestRedisBoundaries
+    redis_test.go:92: real Redis: boundary, decay rounding, TTL, idle gap and rollback checks passed
+--- PASS: TestRedisBoundaries (0.01s)
+=== RUN   TestRedisServerTimeContentionAndCapacity
+    redis_test.go:143: real Redis concurrent admissions=20/80; server-time expiry and identity cap verified
+--- PASS: TestRedisServerTimeContentionAndCapacity (0.02s)
+=== RUN   TestRedisLatencyBudget
+    redis_test.go:175: stalled Redis admission returned in 30.0704ms (30ms configured; 250ms scheduling tolerance)
+--- PASS: TestRedisLatencyBudget (0.03s)
+=== RUN   TestRedisExpiryAndCapacityRecovery
+--- PASS: TestRedisExpiryAndCapacityRecovery (2.11s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/ratelimit	2.948s
+=== RUN   TestRedisReadinessModesAndRestoration
+--- PASS: TestRedisReadinessModesAndRestoration (0.01s)
+=== RUN   TestReadinessHealthDeadlineAndMissingProbe
+--- PASS: TestReadinessHealthDeadlineAndMissingProbe (0.02s)
+=== RUN   TestDrainWinsOverInProgressReadinessProbe
+--- PASS: TestDrainWinsOverInProgressReadinessProbe (0.00s)
+=== RUN   TestHealthReadinessAndGracefulDrain
+--- PASS: TestHealthReadinessAndGracefulDrain (0.00s)
+=== RUN   TestShutdownDeadlineCancelsActiveUpstream
+--- PASS: TestShutdownDeadlineCancelsActiveUpstream (0.05s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/server	1.116s
+
+exit=0
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\go.exe test -race -v -count=1 -timeout 90s ./...
+=== RUN   TestConfigFileGatewayProcess
+--- PASS: TestConfigFileGatewayProcess (0.00s)
+=== RUN   TestConfigCLIProcessReloadAndRestoration
+    config_process_test.go:128: real Redis and native gateway process: file polling rejected unsafe target, retained old route, restored new route, readiness 200; no public reload endpoint
+--- PASS: TestConfigCLIProcessReloadAndRestoration (0.28s)
+=== RUN   TestHelp
+--- PASS: TestHelp (0.00s)
+=== RUN   TestInvalidStartup
+--- PASS: TestInvalidStartup (0.00s)
+=== RUN   TestGatewayRedisProcess
+--- PASS: TestGatewayRedisProcess (0.00s)
+=== RUN   TestRedisTwoGatewayProcesses
+    redis_integration_test.go:109: two independent OS processes: admissions=[9 11] total=20; 60 HTTP 429; spoofed forwarding identities ignored
+--- PASS: TestRedisTwoGatewayProcesses (0.12s)
+=== RUN   TestWatchConfigInvalidMissingAndRestoration
+--- PASS: TestWatchConfigInvalidMissingAndRestoration (0.05s)
+PASS
+ok  	example.com/resilient-api-gateway/cmd/gateway	2.993s
+?   	example.com/resilient-api-gateway/cmd/upstream-sim	[no test files]
+=== RUN   TestTransitionsAndRecovery
+--- PASS: TestTransitionsAndRecovery (0.00s)
+=== RUN   TestHalfOpenFailureAndStaleProbes
+--- PASS: TestHalfOpenFailureAndStaleProbes (0.00s)
+=== RUN   TestSimultaneousProbeAdmission
+    breaker_test.go:142: 100 simultaneous admissions: exactly 3 probes; duplicate completions ignored; recovered after 5 successes
+--- PASS: TestSimultaneousProbeAdmission (0.00s)
+=== RUN   TestPoliciesAndInstances
+--- PASS: TestPoliciesAndInstances (0.00s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/breaker	1.275s
+=== RUN   TestCircuitOutcomeClassification
+=== RUN   TestCircuitOutcomeClassification/success
+=== RUN   TestCircuitOutcomeClassification/client_404
+=== RUN   TestCircuitOutcomeClassification/client_429
+=== RUN   TestCircuitOutcomeClassification/upstream_500
+=== RUN   TestCircuitOutcomeClassification/upstream_503
+=== RUN   TestCircuitOutcomeClassification/transport
+=== RUN   TestCircuitOutcomeClassification/truncated_body
+=== RUN   TestCircuitOutcomeClassification/client_cancellation
+=== RUN   TestCircuitOutcomeClassification/gateway_deadline
+=== RUN   TestCircuitOutcomeClassification/upload_error
+=== RUN   TestCircuitOutcomeClassification/abandoned_body
+--- PASS: TestCircuitOutcomeClassification (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/success (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/client_404 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/client_429 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/upstream_500 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/upstream_503 (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/transport (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/truncated_body (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/client_cancellation (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/gateway_deadline (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/upload_error (0.00s)
+    --- PASS: TestCircuitOutcomeClassification/abandoned_body (0.00s)
+=== RUN   TestRealRedisConnectionLossPolicies
+2026/10/27 23:17:17 WARN rate limiter dependency failure route=one policy=fail_closed
+2026/10/27 23:17:17 WARN rate limiter dependency failure route=two policy=fail_open
+--- PASS: TestRealRedisConnectionLossPolicies (0.03s)
+=== RUN   TestAdmissionHeadersAndNoBodyRead
+--- PASS: TestAdmissionHeadersAndNoBodyRead (0.00s)
+=== RUN   TestAdmissionOutagePoliciesAndHooks
+--- PASS: TestAdmissionOutagePoliciesAndHooks (0.01s)
+=== RUN   TestAdmissionSuccessOwnsHeadersAndConsumesOnce
+--- PASS: TestAdmissionSuccessOwnsHeadersAndConsumesOnce (0.00s)
+=== RUN   TestInvalidPeerNeverFailsOpen
+--- PASS: TestInvalidPeerNeverFailsOpen (0.00s)
+=== RUN   TestCanceledAdmissionCannotFailOpen
+--- PASS: TestCanceledAdmissionCannotFailOpen (0.00s)
+=== RUN   TestCircuitHTTPTransitionsAndIsolation
+--- PASS: TestCircuitHTTPTransitionsAndIsolation (0.01s)
+=== RUN   TestCircuitSharedOriginAndTransportFailure
+--- PASS: TestCircuitSharedOriginAndTransportFailure (0.01s)
+=== RUN   TestCircuitConcurrentHTTPProbes
+--- PASS: TestCircuitConcurrentHTTPProbes (0.02s)
+=== RUN   TestCircuitClientCancellationNeutral
+--- PASS: TestCircuitClientCancellationNeutral (0.00s)
+=== RUN   TestCircuitStreamedFailureKeepsProbeSlot
+--- PASS: TestCircuitStreamedFailureKeepsProbeSlot (0.01s)
+=== RUN   TestConfigDocumentValidationAndLastGood
+--- PASS: TestConfigDocumentValidationAndLastGood (0.01s)
+=== RUN   TestUpstreamFailureMapping
+=== RUN   TestUpstreamFailureMapping/disconnect
+=== RUN   TestUpstreamFailureMapping/response-header-timeout
+=== RUN   TestUpstreamFailureMapping/request-deadline
+--- PASS: TestUpstreamFailureMapping (0.18s)
+    --- PASS: TestUpstreamFailureMapping/disconnect (0.01s)
+    --- PASS: TestUpstreamFailureMapping/response-header-timeout (0.09s)
+    --- PASS: TestUpstreamFailureMapping/request-deadline (0.09s)
+=== RUN   TestUpstreamStatusAndRedirectPreserved
+--- PASS: TestUpstreamStatusAndRedirectPreserved (0.01s)
+=== RUN   TestUpstreamTLSVerification
+2026/10/27 23:17:17 http: TLS handshake error from 127.0.0.1:65181: remote error: tls: bad certificate
+--- PASS: TestUpstreamTLSVerification (0.06s)
+=== RUN   TestSharedConnectionBudgetAndReuse
+--- PASS: TestSharedConnectionBudgetAndReuse (0.09s)
+=== RUN   TestUpstreamResponseHeaderBudget
+--- PASS: TestUpstreamResponseHeaderBudget (0.01s)
+=== RUN   TestForwardingAndStaticRoutes
+=== RUN   TestForwardingAndStaticRoutes/one/GET
+=== RUN   TestForwardingAndStaticRoutes/one/HEAD
+=== RUN   TestForwardingAndStaticRoutes/one/POST
+=== RUN   TestForwardingAndStaticRoutes/one/PUT
+=== RUN   TestForwardingAndStaticRoutes/one/PATCH
+=== RUN   TestForwardingAndStaticRoutes/one/DELETE
+=== RUN   TestForwardingAndStaticRoutes/one/OPTIONS
+=== RUN   TestForwardingAndStaticRoutes/two/GET
+=== RUN   TestForwardingAndStaticRoutes/two/HEAD
+=== RUN   TestForwardingAndStaticRoutes/two/POST
+=== RUN   TestForwardingAndStaticRoutes/two/PUT
+=== RUN   TestForwardingAndStaticRoutes/two/PATCH
+=== RUN   TestForwardingAndStaticRoutes/two/DELETE
+=== RUN   TestForwardingAndStaticRoutes/two/OPTIONS
+--- PASS: TestForwardingAndStaticRoutes (0.03s)
+    --- PASS: TestForwardingAndStaticRoutes/one/GET (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/HEAD (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/POST (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/PUT (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/PATCH (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/DELETE (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/OPTIONS (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/GET (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/HEAD (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/POST (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/PUT (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/PATCH (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/DELETE (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/OPTIONS (0.00s)
+=== RUN   TestForwardingTrustAndHopHeaders
+--- PASS: TestForwardingTrustAndHopHeaders (0.00s)
+=== RUN   TestActualTLSForwardingProto
+--- PASS: TestActualTLSForwardingProto (0.02s)
+=== RUN   TestRouteBoundariesAndMalformedInputs
+=== RUN   TestRouteBoundariesAndMalformedInputs//one
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/
+=== RUN   TestRouteBoundariesAndMalformedInputs//two/a%20b?x=%2F
+=== RUN   TestRouteBoundariesAndMalformedInputs//
+=== RUN   TestRouteBoundariesAndMalformedInputs//oneevil
+=== RUN   TestRouteBoundariesAndMalformedInputs//unknown
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/../two
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/%2e%2e/two
+=== RUN   TestRouteBoundariesAndMalformedInputs//one//x
+=== RUN   TestRouteBoundariesAndMalformedInputs//one%2Fx
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/x%5cy
+=== RUN   TestRouteBoundariesAndMalformedInputs//%6fne/x
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/%00
+=== RUN   TestRouteBoundariesAndMalformedInputs//one?x=%zz
+=== RUN   TestRouteBoundariesAndMalformedInputs//one?x=1;y=2
+--- PASS: TestRouteBoundariesAndMalformedInputs (0.03s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/ (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//two/a%20b?x=%2F (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs// (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//oneevil (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//unknown (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/../two (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/%2e%2e/two (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one//x (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one%2Fx (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/x%5cy (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//%6fne/x (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/%00 (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one?x=%zz (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one?x=1;y=2 (0.00s)
+=== RUN   TestRejectsUpgradeAndAbsoluteTarget
+--- PASS: TestRejectsUpgradeAndAbsoluteTarget (0.00s)
+=== RUN   TestRejectsInvalidOperatorTargets
+--- PASS: TestRejectsInvalidOperatorTargets (0.00s)
+=== RUN   TestRequestTrailersExplicitlyUnsupported
+--- PASS: TestRequestTrailersExplicitlyUnsupported (0.00s)
+=== RUN   TestRealRedisOutageReloadReadinessAndRecovery
+    redis_reload_test.go:191: real Redis: required/policy readiness, fail-open/closed requests, restore without restart, quota retained across reload and health probes; final quota rejection 429
+--- PASS: TestRealRedisOutageReloadReadinessAndRecovery (0.06s)
+=== RUN   TestReloadDuringConcurrentLongStreams
+    reload_test.go:145: 16 old streams completed across 21 valid swaps; new traffic used new target; invalid candidate retained last good version; restoration passed
+--- PASS: TestReloadDuringConcurrentLongStreams (0.09s)
+=== RUN   TestReloadRetainsSelectedAdmissionPolicy
+--- PASS: TestReloadRetainsSelectedAdmissionPolicy (0.01s)
+=== RUN   TestReloadKeepsOldTargetBeforeRedisCompletes
+--- PASS: TestReloadKeepsOldTargetBeforeRedisCompletes (0.01s)
+=== RUN   TestReloadPreservesCircuitsForRetainedOrigins
+--- PASS: TestReloadPreservesCircuitsForRetainedOrigins (0.00s)
+=== RUN   TestConcurrentReloadWritersAndNoop
+--- PASS: TestConcurrentReloadWritersAndNoop (0.00s)
+=== RUN   TestStreamingUpload
+--- PASS: TestStreamingUpload (0.01s)
+=== RUN   TestStreamingResponse
+--- PASS: TestStreamingResponse (0.00s)
+=== RUN   TestEarlyResponseWithoutDrainingUpload
+--- PASS: TestEarlyResponseWithoutDrainingUpload (0.50s)
+=== RUN   TestRejectsBeforeApplicationBodyRead
+--- PASS: TestRejectsBeforeApplicationBodyRead (0.00s)
+=== RUN   TestClientCancellationReachesUpstream
+--- PASS: TestClientCancellationReachesUpstream (0.00s)
+=== RUN   TestStreamDisconnectAbortsResponse
+--- PASS: TestStreamDisconnectAbortsResponse (0.00s)
+=== RUN   TestResponseDeadlineAfterHeadersAbortsStream
+--- PASS: TestResponseDeadlineAfterHeadersAbortsStream (0.25s)
+=== RUN   TestRejectedUploadRespondsWithoutWaitingForBody
+--- PASS: TestRejectedUploadRespondsWithoutWaitingForBody (0.50s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/gateway	5.093s
+=== RUN   TestPeerIdentity
+--- PASS: TestPeerIdentity (0.00s)
+=== RUN   TestInvalidLimiterConfiguration
+--- PASS: TestInvalidLimiterConfiguration (0.00s)
+=== RUN   TestRedisBoundaries
+    redis_test.go:92: real Redis: boundary, decay rounding, TTL, idle gap and rollback checks passed
+--- PASS: TestRedisBoundaries (0.03s)
+=== RUN   TestRedisServerTimeContentionAndCapacity
+    redis_test.go:143: real Redis concurrent admissions=20/80; server-time expiry and identity cap verified
+--- PASS: TestRedisServerTimeContentionAndCapacity (0.04s)
+=== RUN   TestRedisLatencyBudget
+    redis_test.go:175: stalled Redis admission returned in 30.8703ms (30ms configured; 250ms scheduling tolerance)
+--- PASS: TestRedisLatencyBudget (0.03s)
+=== RUN   TestRedisExpiryAndCapacityRecovery
+--- PASS: TestRedisExpiryAndCapacityRecovery (2.11s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/ratelimit	3.949s
+=== RUN   TestRedisReadinessModesAndRestoration
+--- PASS: TestRedisReadinessModesAndRestoration (0.02s)
+=== RUN   TestReadinessHealthDeadlineAndMissingProbe
+--- PASS: TestReadinessHealthDeadlineAndMissingProbe (0.02s)
+=== RUN   TestDrainWinsOverInProgressReadinessProbe
+--- PASS: TestDrainWinsOverInProgressReadinessProbe (0.01s)
+=== RUN   TestHealthReadinessAndGracefulDrain
+--- PASS: TestHealthReadinessAndGracefulDrain (0.02s)
+=== RUN   TestShutdownDeadlineCancelsActiveUpstream
+--- PASS: TestShutdownDeadlineCancelsActiveUpstream (0.06s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/server	1.956s
+
+exit=0
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\go.exe vet ./...
+
+exit=0
+$ C:\Users\saura\Desktop\resilient-api-gateway\.tools\go\bin\go.exe build -o bin/ ./cmd/...
+
+exit=0
+$ git diff --check
+
+exit=0

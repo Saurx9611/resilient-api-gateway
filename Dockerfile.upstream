@@ -1,0 +1,19 @@
+FROM golang:1.27.3-alpine AS build
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY cmd/upstream-sim/ ./cmd/upstream-sim/
+COPY internal/server/ ./internal/server/
+RUN CGO_ENABLED=0 go build -trimpath -ldflags="-s -w" -o /out/upstream-sim ./cmd/upstream-sim
+
+FROM alpine:3.22 AS runtime
+RUN apk add --no-cache ca-certificates wget \
+ && addgroup -S -g 10001 gateway \
+ && adduser -S -u 10001 -G gateway -H -h /nonexistent gateway
+COPY --from=build --chown=10001:10001 /out/upstream-sim /usr/local/bin/upstream-sim
+USER 10001:10001
+WORKDIR /app
+EXPOSE 9001
+HEALTHCHECK --interval=10s --timeout=2s --start-period=3s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:9001/healthz || exit 1
+ENTRYPOINT ["/usr/local/bin/upstream-sim"]
+CMD ["-listen", "0.0.0.0:9001"]

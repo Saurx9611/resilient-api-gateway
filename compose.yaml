@@ -1,0 +1,101 @@
+name: resilient-gateway
+
+services:
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      GATEWAY_DEMO_TOKEN: ${GATEWAY_DEMO_TOKEN:?set a random 32+ byte demo token}
+      METRICS_BEARER_TOKEN: ${METRICS_BEARER_TOKEN:?set a distinct random 32+ byte metrics token}
+    entrypoint: ["/usr/local/bin/gateway"]
+    command: ["-listen", "0.0.0.0:8080", "-upstream-one", "http://one:9001", "-upstream-two", "http://two:9002"]
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      redis: {condition: service_healthy}
+      one: {condition: service_healthy}
+      two: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/readyz"]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+      start_period: 10s
+    stop_grace_period: 12s
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+    mem_limit: 256m
+
+  one:
+    build: {context: ., dockerfile: Dockerfile.upstream}
+    entrypoint: ["/usr/local/bin/upstream-sim"]
+    command: ["-listen", "0.0.0.0:9001", "-name", "one"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9001/healthz"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+    stop_grace_period: 12s
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 32
+    mem_limit: 64m
+
+  two:
+    build: {context: ., dockerfile: Dockerfile.upstream}
+    entrypoint: ["/usr/local/bin/upstream-sim"]
+    command: ["-listen", "0.0.0.0:9002", "-name", "two"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:9002/healthz"]
+      interval: 10s
+      timeout: 2s
+      retries: 3
+    stop_grace_period: 12s
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 32
+    mem_limit: 64m
+
+  redis:
+    image: redis:8.10.3-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "64mb", "--maxmemory-policy", "noeviction"]
+    ports: ["127.0.0.1:${REDIS_PORT:-6379}:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 10
+    tmpfs: [/data]
+    stop_grace_period: 5s
+
+  web:
+    build: {context: ., dockerfile: Dockerfile.web}
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      GATEWAY_INTERNAL_URL: http://gateway:8080
+      GATEWAY_DEMO_TOKEN: ${GATEWAY_DEMO_TOKEN:?set a random 32+ byte demo token}
+    ports: ["127.0.0.1:3000:3000"]
+    depends_on:
+      gateway: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    stop_grace_period: 12s
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 768m

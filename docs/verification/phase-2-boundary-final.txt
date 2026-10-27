@@ -1,0 +1,17 @@
+=== RUN   TestPeerIdentity
+--- PASS: TestPeerIdentity (0.00s)
+=== RUN   TestInvalidLimiterConfiguration
+--- PASS: TestInvalidLimiterConfiguration (0.00s)
+=== RUN   TestRedisBoundaries
+    redis_test.go:92: real Redis: boundary, decay rounding, TTL, idle gap and rollback checks passed
+--- PASS: TestRedisBoundaries (0.01s)
+=== RUN   TestRedisServerTimeContentionAndCapacity
+    redis_test.go:143: real Redis concurrent admissions=20/80; server-time expiry and identity cap verified
+--- PASS: TestRedisServerTimeContentionAndCapacity (0.02s)
+=== RUN   TestRedisLatencyBudget
+    redis_test.go:175: stalled Redis admission returned in 30.4144ms (30ms configured; 250ms scheduling tolerance)
+--- PASS: TestRedisLatencyBudget (0.03s)
+=== RUN   TestRedisExpiryAndCapacityRecovery
+--- PASS: TestRedisExpiryAndCapacityRecovery (2.11s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/ratelimit	3.074s

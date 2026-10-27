@@ -1,0 +1,17 @@
+Native process smoke: 2026-10-27T10:05:02.768885+00:00
+Loopback only; Windows processes run hidden. Cleanup uses forced Windows process termination, not a graceful-signal claim.
+$ bin/upstream-sim -listen 127.0.0.1:59110 -name one
+$ bin/upstream-sim -listen 127.0.0.1:59111 -name two
+$ bin/gateway -listen 127.0.0.1:59112 -upstream-one http://127.0.0.1:59110 -upstream-two http://127.0.0.1:59111
+GET /healthz => 200 ok
+GET /readyz => 200 ok
+GET /one/hello?q=a%20b => 200 {"upstream":"one","method":"GET","path":"/hello","query":"q=a%20b"}
+GET /two/hello => 200 {"upstream":"two","method":"GET","path":"/hello","query":""}
+GET /unknown => 404
+TRACE /one => 405
+Stopped local upstream one for bounded failure check.
+GET /one/hello => 502 Bad Gateway
+GET /two/hello => 200 {"upstream":"two","method":"GET","path":"/hello","query":""}
+GET /readyz => 200 ok
+PASS: two process upstreams, static routing, health/readiness, rejection and isolated upstream failure.
+All smoke child processes reaped.

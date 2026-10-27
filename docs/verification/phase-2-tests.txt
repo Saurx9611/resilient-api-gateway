@@ -1,0 +1,156 @@
+=== RUN   TestHelp
+--- PASS: TestHelp (0.00s)
+=== RUN   TestInvalidStartup
+--- PASS: TestInvalidStartup (0.00s)
+=== RUN   TestGatewayRedisProcess
+--- PASS: TestGatewayRedisProcess (0.00s)
+=== RUN   TestRedisTwoGatewayProcesses
+    redis_integration_test.go:109: two independent OS processes: admissions=[9 11] total=20; 60 HTTP 429; spoofed forwarding identities ignored
+--- PASS: TestRedisTwoGatewayProcesses (0.60s)
+PASS
+ok  	example.com/resilient-api-gateway/cmd/gateway	2.236s
+?   	example.com/resilient-api-gateway/cmd/upstream-sim	[no test files]
+=== RUN   TestRealRedisConnectionLossPolicies
+2026/10/27 22:34:35 WARN rate limiter dependency failure route=one policy=fail_closed
+2026/10/27 22:34:35 WARN rate limiter dependency failure route=two policy=fail_open
+--- PASS: TestRealRedisConnectionLossPolicies (0.01s)
+=== RUN   TestAdmissionHeadersAndNoBodyRead
+--- PASS: TestAdmissionHeadersAndNoBodyRead (0.00s)
+=== RUN   TestAdmissionOutagePoliciesAndHooks
+--- PASS: TestAdmissionOutagePoliciesAndHooks (0.00s)
+=== RUN   TestAdmissionSuccessOwnsHeadersAndConsumesOnce
+--- PASS: TestAdmissionSuccessOwnsHeadersAndConsumesOnce (0.00s)
+=== RUN   TestInvalidPeerNeverFailsOpen
+--- PASS: TestInvalidPeerNeverFailsOpen (0.00s)
+=== RUN   TestCanceledAdmissionCannotFailOpen
+--- PASS: TestCanceledAdmissionCannotFailOpen (0.00s)
+=== RUN   TestUpstreamFailureMapping
+=== RUN   TestUpstreamFailureMapping/disconnect
+=== RUN   TestUpstreamFailureMapping/response-header-timeout
+=== RUN   TestUpstreamFailureMapping/request-deadline
+--- PASS: TestUpstreamFailureMapping (0.16s)
+    --- PASS: TestUpstreamFailureMapping/disconnect (0.00s)
+    --- PASS: TestUpstreamFailureMapping/response-header-timeout (0.08s)
+    --- PASS: TestUpstreamFailureMapping/request-deadline (0.08s)
+=== RUN   TestUpstreamStatusAndRedirectPreserved
+--- PASS: TestUpstreamStatusAndRedirectPreserved (0.00s)
+=== RUN   TestUpstreamTLSVerification
+2026/10/27 22:34:35 http: TLS handshake error from 127.0.0.1:59278: remote error: tls: bad certificate
+--- PASS: TestUpstreamTLSVerification (0.03s)
+=== RUN   TestSharedConnectionBudgetAndReuse
+--- PASS: TestSharedConnectionBudgetAndReuse (0.08s)
+=== RUN   TestUpstreamResponseHeaderBudget
+--- PASS: TestUpstreamResponseHeaderBudget (0.00s)
+=== RUN   TestForwardingAndStaticRoutes
+=== RUN   TestForwardingAndStaticRoutes/one/GET
+=== RUN   TestForwardingAndStaticRoutes/one/HEAD
+=== RUN   TestForwardingAndStaticRoutes/one/POST
+=== RUN   TestForwardingAndStaticRoutes/one/PUT
+=== RUN   TestForwardingAndStaticRoutes/one/PATCH
+=== RUN   TestForwardingAndStaticRoutes/one/DELETE
+=== RUN   TestForwardingAndStaticRoutes/one/OPTIONS
+=== RUN   TestForwardingAndStaticRoutes/two/GET
+=== RUN   TestForwardingAndStaticRoutes/two/HEAD
+=== RUN   TestForwardingAndStaticRoutes/two/POST
+=== RUN   TestForwardingAndStaticRoutes/two/PUT
+=== RUN   TestForwardingAndStaticRoutes/two/PATCH
+=== RUN   TestForwardingAndStaticRoutes/two/DELETE
+=== RUN   TestForwardingAndStaticRoutes/two/OPTIONS
+--- PASS: TestForwardingAndStaticRoutes (0.01s)
+    --- PASS: TestForwardingAndStaticRoutes/one/GET (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/HEAD (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/POST (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/PUT (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/PATCH (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/DELETE (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/one/OPTIONS (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/GET (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/HEAD (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/POST (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/PUT (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/PATCH (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/DELETE (0.00s)
+    --- PASS: TestForwardingAndStaticRoutes/two/OPTIONS (0.00s)
+=== RUN   TestForwardingTrustAndHopHeaders
+--- PASS: TestForwardingTrustAndHopHeaders (0.00s)
+=== RUN   TestActualTLSForwardingProto
+--- PASS: TestActualTLSForwardingProto (0.00s)
+=== RUN   TestRouteBoundariesAndMalformedInputs
+=== RUN   TestRouteBoundariesAndMalformedInputs//one
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/
+=== RUN   TestRouteBoundariesAndMalformedInputs//two/a%20b?x=%2F
+=== RUN   TestRouteBoundariesAndMalformedInputs//
+=== RUN   TestRouteBoundariesAndMalformedInputs//oneevil
+=== RUN   TestRouteBoundariesAndMalformedInputs//unknown
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/../two
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/%2e%2e/two
+=== RUN   TestRouteBoundariesAndMalformedInputs//one//x
+=== RUN   TestRouteBoundariesAndMalformedInputs//one%2Fx
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/x%5cy
+=== RUN   TestRouteBoundariesAndMalformedInputs//%6fne/x
+=== RUN   TestRouteBoundariesAndMalformedInputs//one/%00
+=== RUN   TestRouteBoundariesAndMalformedInputs//one?x=%zz
+=== RUN   TestRouteBoundariesAndMalformedInputs//one?x=1;y=2
+--- PASS: TestRouteBoundariesAndMalformedInputs (0.01s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/ (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//two/a%20b?x=%2F (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs// (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//oneevil (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//unknown (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/../two (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/%2e%2e/two (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one//x (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one%2Fx (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/x%5cy (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//%6fne/x (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one/%00 (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one?x=%zz (0.00s)
+    --- PASS: TestRouteBoundariesAndMalformedInputs//one?x=1;y=2 (0.00s)
+=== RUN   TestRejectsUpgradeAndAbsoluteTarget
+--- PASS: TestRejectsUpgradeAndAbsoluteTarget (0.00s)
+=== RUN   TestRejectsInvalidOperatorTargets
+--- PASS: TestRejectsInvalidOperatorTargets (0.00s)
+=== RUN   TestRequestTrailersExplicitlyUnsupported
+--- PASS: TestRequestTrailersExplicitlyUnsupported (0.00s)
+=== RUN   TestStreamingUpload
+--- PASS: TestStreamingUpload (0.00s)
+=== RUN   TestStreamingResponse
+--- PASS: TestStreamingResponse (0.00s)
+=== RUN   TestEarlyResponseWithoutDrainingUpload
+--- PASS: TestEarlyResponseWithoutDrainingUpload (0.50s)
+=== RUN   TestRejectsBeforeApplicationBodyRead
+--- PASS: TestRejectsBeforeApplicationBodyRead (0.00s)
+=== RUN   TestClientCancellationReachesUpstream
+--- PASS: TestClientCancellationReachesUpstream (0.00s)
+=== RUN   TestStreamDisconnectAbortsResponse
+--- PASS: TestStreamDisconnectAbortsResponse (0.00s)
+=== RUN   TestResponseDeadlineAfterHeadersAbortsStream
+--- PASS: TestResponseDeadlineAfterHeadersAbortsStream (0.25s)
+=== RUN   TestRejectedUploadRespondsWithoutWaitingForBody
+--- PASS: TestRejectedUploadRespondsWithoutWaitingForBody (0.50s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/gateway	3.182s
+=== RUN   TestPeerIdentity
+--- PASS: TestPeerIdentity (0.00s)
+=== RUN   TestInvalidLimiterConfiguration
+--- PASS: TestInvalidLimiterConfiguration (0.00s)
+=== RUN   TestRedisBoundaries
+    redis_test.go:81: real Redis: boundary, decay rounding, TTL, idle gap and rollback checks passed
+--- PASS: TestRedisBoundaries (0.01s)
+=== RUN   TestRedisServerTimeContentionAndCapacity
+    redis_test.go:132: real Redis concurrent admissions=20/80; server-time expiry and identity cap verified
+--- PASS: TestRedisServerTimeContentionAndCapacity (0.02s)
+=== RUN   TestRedisLatencyBudget
+    redis_test.go:164: stalled Redis admission returned in 30.4335ms (30ms configured; 250ms scheduling tolerance)
+--- PASS: TestRedisLatencyBudget (0.03s)
+=== RUN   TestRedisExpiryAndCapacityRecovery
+--- PASS: TestRedisExpiryAndCapacityRecovery (2.11s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/ratelimit	2.898s
+=== RUN   TestHealthReadinessAndGracefulDrain
+--- PASS: TestHealthReadinessAndGracefulDrain (0.01s)
+=== RUN   TestShutdownDeadlineCancelsActiveUpstream
+--- PASS: TestShutdownDeadlineCancelsActiveUpstream (0.05s)
+PASS
+ok  	example.com/resilient-api-gateway/internal/server	1.004s

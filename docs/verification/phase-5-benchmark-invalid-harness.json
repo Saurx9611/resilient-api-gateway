@@ -1,0 +1,84 @@
+{
+  "schema": "rag-bench-v1",
+  "utc": "2026-10-27T17:57:41Z",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+    "logical_cpu_count": 12,
+    "go_version": "go version go1.27.3 windows/amd64",
+    "payload_bytes": 1024,
+    "http": "HTTP/1.1 cleartext loopback keep-alive",
+    "redis": "loopback; admission enabled",
+    "warmup": "none; first-request setup included",
+    "test_duration": "per scenario recorded",
+    "concurrency": 8,
+    "requested_requests": 300,
+    "limitations": "single host Python ThreadingHTTPServer fixture; Python client and upstream may dominate; no TLS; sample percentiles use nearest-rank index; no production inference"
+  },
+  "scenarios": [
+    {
+      "name": "direct",
+      "requests": 300,
+      "concurrency": 8,
+      "duration_seconds": 0.525714,
+      "requests_per_second": 570.653,
+      "statuses": {
+        "200": 300
+      },
+      "errors": 0,
+      "error_percent": 0.0,
+      "p50_ms": 3.425,
+      "p95_ms": 4.349,
+      "p99_ms": 6.11
+    },
+    {
+      "name": "proxied",
+      "requests": 300,
+      "concurrency": 8,
+      "duration_seconds": 0.150304,
+      "requests_per_second": 1995.962,
+      "statuses": {
+        "200": 17,
+        "502": 1,
+        "503": 282
+      },
+      "errors": 283,
+      "error_percent": 94.3333,
+      "p50_ms": 3.018,
+      "p95_ms": 6.94,
+      "p99_ms": 25.036
+    },
+    {
+      "name": "429_fail_fast",
+      "requests": 40,
+      "concurrency": 8,
+      "duration_seconds": 0.017902,
+      "requests_per_second": 2234.4,
+      "statuses": {
+        "429": 39,
+        "503": 1
+      },
+      "errors": 1,
+      "error_percent": 2.5,
+      "p50_ms": 3.011,
+      "p95_ms": 4.133,
+      "p99_ms": 4.24
+    },
+    {
+      "name": "circuit_open_fail_fast",
+      "requests": 40,
+      "concurrency": 8,
+      "duration_seconds": 0.017935,
+      "requests_per_second": 2230.326,
+      "statuses": {
+        "503": 40
+      },
+      "errors": 0,
+      "error_percent": 0.0,
+      "p50_ms": 2.958,
+      "p95_ms": 3.986,
+      "p99_ms": 4.156
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+$ docker version
+Client:
+ Version:           27.5.1
+ API version:       1.47
+ Go version:        go1.22.11
+ Git commit:        9f9e405
+ Built:             Wed Jan 22 13:41:44 2025
+ OS/Arch:           windows/amd64
+ Context:           desktop-linux
+
+Server: Docker Desktop 4.91.0 (239619)
+ Engine:
+  Version:          29.8.0
+  API version:      1.56 (minimum version 1.40)
+  Go version:       go1.26.8
+  Git commit:       3ce5872
+  Built:            Thu Sep  3 21:51:20 2026
+  OS/Arch:          linux/amd64
+  Experimental:     false
+ containerd:
+  Version:          v2.3.4
+  GitCommit:        db8809540e1a7a9da5d518876894933ff55692ab
+ runc:
+  Version:          1.4.3
+  GitCommit:        v1.4.3-0-gbb14dabe
+ docker-init:
+  Version:          0.19.0
+  GitCommit:        de40ad0
+
+exit=0
+$ docker run --detach --rm --name rag-phase2-redis-24417a15 --label rag.task=phase2 --publish 127.0.0.1::6379 --tmpfs /data redis:8.10.3-alpine redis-server --save  --appendonly no --maxmemory 64mb --maxmemory-policy noeviction
+20a7c79e0767da7ba1270807b27f0a186a4f32c4ed851b9558b712f62b7416d5
+Unable to find image 'redis:8.10.3-alpine' locally
+8.10.3-alpine: Pulling from library/redis
+74c3c7a694d3: Pulling fs layer
+232fbf3af8e0: Pulling fs layer
+bc92976dd070: Pulling fs layer
+7379ba8f71f2: Pulling fs layer
+5e9b4a97f639: Pulling fs layer
+4f4fb700ef54: Pulling fs layer
+cea19da2b361: Pulling fs layer
+4f4fb700ef54: Already exists
+bb01768357e6: Download complete
+241fa7950fe7: Download complete
+74c3c7a694d3: Download complete
+232fbf3af8e0: Download complete
+bc92976dd070: Download complete
+cea19da2b361: Download complete
+5e9b4a97f639: Download complete
+5e9b4a97f639: Pull complete
+cea19da2b361: Pull complete
+bc92976dd070: Pull complete
+7379ba8f71f2: Download complete
+232fbf3af8e0: Pull complete
+7379ba8f71f2: Pull complete
+4f4fb700ef54: Pull complete
+74c3c7a694d3: Pull complete
+Digest: sha256:896f241f438ab6a210cfb24f573b84bea721a4cbe67f1b4fd07eb638b3b02a7b
+Status: Downloaded newer image for redis:8.10.3-alpine
+
+exit=0
+$ docker inspect 20a7c79e0767da7ba1270807b27f0a186a4f32c4ed851b9558b712f62b7416d5
+[
+    {
+        "Id": "20a7c79e0767da7ba1270807b27f0a186a4f32c4ed851b9558b712f62b7416d5",
+        "Created": "2026-10-27T17:02:59.223045417Z",
+        "Path": "docker-entrypoint.sh",
+        "Args": [
+            "redis-server",
+            "--save",
+            "",
+            "--appendonly",
+            "no",
+            "--maxmemory",
+            "64mb",
+            "--maxmemory-policy",
+            "noeviction"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 953,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-10-27T17:02:59.552694938Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:896f241f438ab6a210cfb24f573b84bea721a4cbe67f1b4fd07eb638b3b02a7b",
+        "ResolvConfPath": "/var/lib/docker/containers/20a7c79e0767da7ba1270807b27f0a186a4f32c4ed851b9558b712f62b7416d5/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/20a7c79e0767da7ba1270807b27f0a186a4f32c4ed851b9558b712f62b7416d5/hostname",
+        "HostsPath": "/var/lib/docker/containers/20a7c79e0767da7ba1270807b27f0a186a4f32c4ed851b9558b712f62b7416d5/hosts",
+        "LogPath": "/var/lib/docker/containers/20a7c79e0767da7ba1270807b27f0a186a4f32c4ed851b9558b712f62b7416d5/20a7c79e0767da7ba1270807b27f0a186a4f32c4ed851b9558b712f62b7416d5-json.log",
+        "Name": "/rag-phase2-redis-24417a15",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": null,
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "bridge",
+            "PortBindings": {
+                "6379/tcp": [
+                    {
+                        "HostIp": "127.0.0.1",
+                        "HostPort": ""
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": true,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "Tmpfs": {
+                "/data": ""
+            },
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": [],
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "GraphDriver": {
+            "Data": null,
+            "Name": "overlayfs"
+        },
+        "Mounts": [],
+        "Config": {
+            "Hostname": "20a7c79e0767",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "ExposedPorts": {
+                "6379/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "REDIS_VERSION=8.10.3"
+            ],
+            "Cmd": [
+                "redis-server",
+                "--save",
+                "",
+                "--appendonly",
+                "no",
+                "--maxmemory",
+                "64mb",
+                "--maxmemory-policy",
+                "noeviction"
+            ],
+            "Image": "redis:8.10.3-alpine",
+            "Volumes": null,
+            "WorkingDir": "/data",
+            "Entrypoint": [
+                "docker-entrypoint.sh"
+            ],
+            "Labels": {
+                "rag.task": "phase2"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "39cc54682856ac00b0aec287f8b98fe84c3040889ee178b633b9844c9a5f8219",
+            "SandboxKey": "/var/run/docker/netns/39cc54682856",
+            "Ports": {
+                "6379/tcp": [
+                    {
+                        "HostIp": "127.0.0.1",
+                        "HostPort": "54909"
+                    }
+                ]
+            },
+            "Networks": {
+                "bridge": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "1b4f94b3368071f58428cd16dcdb2a601c475b1930b251ed81fbddc51c686afd",
+                    "EndpointID": "8a2d6d35323aee01b973b6c8028c8955cf66cec5410fa18fdaf665d53d94f8b3",
+                    "Gateway": "172.17.0.1",
+                    "IPAddress": "172.17.0.2",
+                    "MacAddress": "52:96:92:19:5b:0e",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        }
+    }
+]
+
+exit=0
+$ docker exec 20a7c79e0767da7ba1270807b27f0a186a4f32c4ed851b9558b712f62b7416d5 redis-server --version
+Redis server v=8.10.3 sha=00000000:1 malloc=jemalloc-5.3.0 bits=64 build=defa938dbe2c41f
+
+exit=0
+$ docker image inspect redis:8.10.3-alpine --format {{json .RepoDigests}}
+["redis@sha256:896f241f438ab6a210cfb24f573b84bea721a4cbe67f1b4fd07eb638b3b02a7b"]
+
+exit=0
+$ docker exec 20a7c79e0767da7ba1270807b27f0a186a4f32c4ed851b9558b712f62b7416d5 redis-cli CONFIG GET maxmemory-policy
+maxmemory-policy
+noeviction
+
+exit=0
+Loopback Redis URL: redis://127.0.0.1:54909/0
+PONG verified. Ephemeral tmpfs, no persistence.

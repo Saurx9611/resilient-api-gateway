@@ -1,0 +1,5 @@
+{
+  "targets": ["http://127.0.0.1:9001", "http://127.0.0.1:9002"],
+  "redis_failure": ["closed", "closed"],
+  "readiness": "required"
+}

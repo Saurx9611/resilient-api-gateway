@@ -1,0 +1,69 @@
+﻿File: bench.test.exe
+Build ID: C:\Users\saura\AppData\Local\Temp\go-build604774342\b001\bench.test.exe2026-10-27 23:29:17.1537807 +0530 IST
+Type: alloc_space
+Time: 2026-10-27 23:29:24 IST
+Showing nodes accounting for 1054.52MB, 96.30% of 1095.03MB total
+Dropped 114 nodes (cum <= 5.48MB)
+      flat  flat%   sum%        cum   cum%
+  731.90MB 66.84% 66.84%   732.40MB 66.88%  net/http/httputil.(*ReverseProxy).copyBuffer
+   44.01MB  4.02% 70.86%    44.51MB  4.06%  net/textproto.readMIMEHeader
+   24.01MB  2.19% 73.05%    24.01MB  2.19%  net/http.(*Request).WithContext (inline)
+   22.51MB  2.06% 75.11%    22.51MB  2.06%  net/http.Header.Clone (inline)
+      20MB  1.83% 76.93%       24MB  2.19%  net/http.(*Transport).getConn
+   19.01MB  1.74% 78.67%    19.01MB  1.74%  net/textproto.MIMEHeader.Set (inline)
+   16.50MB  1.51% 80.17%    34.01MB  3.11%  net/http.(*persistConn).roundTrip
+      15MB  1.37% 81.54%    49.01MB  4.48%  net/http.readRequestLimit
+   13.50MB  1.23% 82.78%    68.02MB  6.21%  net/http.(*conn).readRequest
+      13MB  1.19% 83.97%       13MB  1.19%  context.(*cancelCtx).Done
+      12MB  1.10% 85.06%       12MB  1.10%  mime.ParseMediaType
+      12MB  1.10% 86.16%       12MB  1.10%  net/url.parse
+      11MB  1.00% 87.16%    16.50MB  1.51%  net/http.NewRequestWithContext
+      11MB  1.00% 88.17%       11MB  1.00%  net/http.newTransferWriter
+      11MB  1.00% 89.17%       16MB  1.46%  context.withCancel (inline)
+   10.50MB  0.96% 90.13%    43.01MB  3.93%  net/http.(*persistConn).readLoop
+       9MB  0.82% 90.95%    12.50MB  1.14%  context.(*cancelCtx).propagateCancel
+    8.50MB  0.78% 91.73%     8.50MB  0.78%  time.newTimer
+       8MB  0.73% 92.46%        8MB  0.73%  net/url.(*URL).Clone (inline)
+    7.05MB  0.64% 93.10%     7.05MB  0.64%  io.init.func1
+       7MB  0.64% 93.74%    24.51MB  2.24%  net/http.(*Request).Clone
+       6MB  0.55% 94.29%   834.92MB 76.25%  net/http/httputil.(*ReverseProxy).ServeHTTP
+       5MB  0.46% 94.75%    31.01MB  2.83%  net/http.ReadResponse
+    3.50MB  0.32% 95.07%    79.01MB  7.22%  net/http.(*Transport).roundTrip
+       3MB  0.27% 95.34%    13.50MB  1.23%  context.WithDeadlineCause
+    2.50MB  0.23% 95.57%   737.40MB 67.34%  net/http/httputil.(*ReverseProxy).copyResponse
+       2MB  0.18% 95.75%    34.50MB  3.15%  example.com/resilient-api-gateway/internal/gateway.circuitTransport.RoundTrip
+       2MB  0.18% 95.93%        9MB  0.82%  context.WithCancel
+    1.50MB  0.14% 96.07%   871.43MB 79.58%  example.com/resilient-api-gateway/internal/gateway.(*Gateway).serveHTTP
+    1.50MB  0.14% 96.21%    15.01MB  1.37%  net/http.(*Request).write
+    0.50MB 0.046% 96.25%    77.57MB  7.08%  example.com/resilient-api-gateway/bench.BenchmarkGatewayRequest
+    0.50MB 0.046% 96.30%   882.93MB 80.63%  example.com/resilient-api-gateway/internal/gateway.(*Gateway).ServeHTTP
+         0     0% 96.30%        9MB  0.82%  context.WithCancelCause
+         0     0% 96.30%    13.50MB  1.23%  context.WithDeadline (inline)
+         0     0% 96.30%    13.50MB  1.23%  context.WithTimeout
+         0     0% 96.30%     8.50MB  0.78%  example.com/resilient-api-gateway/internal/gateway.(*statusWriter).WriteHeader
+         0     0% 96.30%        9MB  0.82%  example.com/resilient-api-gateway/internal/gateway.flushResponseHeaders.WriteHeader
+         0     0% 96.30%     8.56MB  0.78%  io.Copy (inline)
+         0     0% 96.30%     8.56MB  0.78%  io.copyBuffer
+         0     0% 96.30%     8.56MB  0.78%  io.discard.ReadFrom
+         0     0% 96.30%    52.01MB  4.75%  net/http.(*Client).Do (inline)
+         0     0% 96.30%    68.51MB  6.26%  net/http.(*Client).Get
+         0     0% 96.30%    52.01MB  4.75%  net/http.(*Client).do
+         0     0% 96.30%    49.01MB  4.48%  net/http.(*Client).send
+         0     0% 96.30%    79.01MB  7.22%  net/http.(*Transport).RoundTrip
+         0     0% 96.30%   952.95MB 87.02%  net/http.(*conn).serve
+         0     0% 96.30%    31.01MB  2.83%  net/http.(*persistConn).readResponse
+         0     0% 96.30%    15.01MB  1.37%  net/http.(*persistConn).writeLoop
+         0     0% 96.30%     8.50MB  0.78%  net/http.(*response).WriteHeader
+         0     0% 96.30%    19.01MB  1.74%  net/http.Header.Set (inline)
+         0     0% 96.30%    16.50MB  1.51%  net/http.NewRequest (inline)
+         0     0% 96.30%        8MB  0.73%  net/http.cloneURL (inline)
+         0     0% 96.30%    46.51MB  4.25%  net/http.send
+         0     0% 96.30%   882.93MB 80.63%  net/http.serverHandler.ServeHTTP
+         0     0% 96.30%       12MB  1.10%  net/http/httputil.(*ReverseProxy).flushInterval
+         0     0% 96.30%    20.51MB  1.87%  net/textproto.(*Reader).ReadMIMEHeader (inline)
+         0     0% 96.30%     5.50MB   0.5%  net/url.Parse
+         0     0% 96.30%     6.50MB  0.59%  net/url.ParseRequestURI
+         0     0% 96.30%    12.06MB  1.10%  sync.(*Pool).Get
+         0     0% 96.30%    77.57MB  7.08%  testing.(*B).launch
+         0     0% 96.30%    77.57MB  7.08%  testing.(*B).runN
+         0     0% 96.30%     5.50MB   0.5%  time.AfterFunc

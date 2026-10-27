@@ -1,0 +1,66 @@
+name: Go checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GOTOOLCHAIN: local
+      CGO_ENABLED: '1'
+      REDIS_TEST_URL: redis://127.0.0.1:6379/0
+    services:
+      redis:
+        image: redis:8.10.3-alpine
+        ports: ['6379:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 2s --health-timeout 2s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Formatting
+        run: test -z "$(gofmt -l cmd internal)"
+      - run: go vet ./...
+      - run: go test ./...
+      - run: go test -race ./...
+      - run: go build -o bin/ ./cmd/...
+      - run: ./bin/gateway -h
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Frontend checks
+        working-directory: web
+        run: |
+          npm ci --no-audit --no-fund
+          npm run lint
+          npx tsc --noEmit
+          npm run build
+      - name: Build production containers
+        run: |
+          docker build -t resilient-gateway:ci .
+          docker build -f Dockerfile.upstream -t resilient-upstream:ci .
+          docker build -f Dockerfile.web -t resilient-gateway-web:ci .
+          test "$(docker image inspect resilient-gateway:ci --format '{{.Config.User}}')" = '10001:10001'
+          test "$(docker image inspect resilient-upstream:ci --format '{{.Config.User}}')" = '10001:10001'
+          test "$(docker image inspect resilient-gateway-web:ci --format '{{.Config.User}}')" = '10001:10001'
+          test "$(docker image inspect resilient-gateway:ci resilient-upstream:ci resilient-gateway-web:ci --format '{{if .Config.Healthcheck}}healthcheck-configured{{else}}missing-healthcheck{{end}}' | grep -c '^healthcheck-configured$')" -eq 3
+      - name: Compose smoke test
+        env:
+          GATEWAY_DEMO_TOKEN: ci-only-demo-token-0123456789abcdef
+          METRICS_BEARER_TOKEN: ci-only-metrics-token-0123456789
+          REDIS_PORT: '6380'
+        run: |
+          docker compose config --quiet
+          trap 'docker compose down' EXIT
+          docker compose up -d --build --wait --wait-timeout 180
+          curl --fail --silent http://127.0.0.1:8080/healthz
+          curl --fail --silent http://127.0.0.1:8080/readyz
+          curl --fail --silent http://127.0.0.1:8080/one/smoke
+          curl --fail --silent http://127.0.0.1:3000/api/healthz
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8080/metrics)" = 401
+          curl --fail --silent -H "Authorization: Bearer $METRICS_BEARER_TOKEN" http://127.0.0.1:8080/metrics | grep -q '^gateway_'

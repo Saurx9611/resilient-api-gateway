@@ -1,0 +1,5 @@
+Paused isolated Redis container after a successful admission; configured Redis budget 50ms.
+/one: status=503, elapsed=52.92ms, quota-header=None; expected 503
+/two: status=200, elapsed=55.49ms, quota-header=None; expected 200
+After Redis resumed: /one status=200, elapsed=32.12ms
+PASS. This is a local pause/recovery behavior check, not a latency benchmark or failover guarantee.

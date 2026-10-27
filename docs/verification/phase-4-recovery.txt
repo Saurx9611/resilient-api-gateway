@@ -1,0 +1,424 @@
+Phase 4 worker recovery verification; UTC 2026-10-27T17:48:43Z
+Client 29.8.0; Server 29.8.0
+Projects: rag-worker-p4-test-80945b86 and rag-worker-p4-demo-80945b86 (this script only removes these unique Compose projects).
+
+> docker compose -p rag-worker-p4-test-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile test run --build --rm tests
+ Network rag-worker-p4-test-80945b86_default Creating 
+ Volume rag-worker-p4-test-80945b86_pgdata Creating 
+ Network rag-worker-p4-test-80945b86_default Creating 
+ Volume rag-worker-p4-test-80945b86_pgdata Creating 
+ Volume rag-worker-p4-test-80945b86_pgdata Created 
+ Volume rag-worker-p4-test-80945b86_pgdata Created 
+ Network rag-worker-p4-test-80945b86_default Created 
+ Network rag-worker-p4-test-80945b86_default Created 
+ Container rag-worker-p4-test-80945b86-postgres-1 Creating 
+ Container rag-worker-p4-test-80945b86-postgres-1 Created 
+ Container rag-worker-p4-test-80945b86-postgres-1 Starting 
+ Container rag-worker-p4-test-80945b86-postgres-1 Started 
+ Image resilient-api-worker:phase3 Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 586B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile.worker
+#2 transferring dockerfile: 531B 0.0s done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#3 DONE 0.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 204B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 DONE 0.0s
+
+#6 [1/6] FROM docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#6 resolve docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534 0.1s done
+#6 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 125.65kB 0.0s done
+#5 DONE 0.1s
+
+#7 [3/6] COPY requirements.txt ./
+#7 CACHED
+
+#8 [2/6] WORKDIR /app
+#8 CACHED
+
+#9 [4/6] RUN pip install --no-cache-dir --requirement requirements.txt
+#9 CACHED
+
+#10 [5/6] COPY worker_runtime ./worker_runtime
+#10 DONE 0.2s
+
+#11 [6/6] RUN groupadd --gid 10001 worker && useradd --uid 10001 --gid worker --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin worker
+#11 DONE 0.8s
+
+#12 exporting to image
+#12 exporting layers
+#12 exporting layers 0.5s done
+#12 exporting manifest sha256:f151d2d66e47fadda211ab3fc413677658e432934878c293c12a5d88b2390319 0.1s done
+#12 exporting config sha256:f1e624b2da05b9deb6547d218cd253072bf1de257a9ee32bf00ea9c2f03fd6a9 0.1s done
+#12 exporting attestation manifest sha256:4ddeea551811fbc66790e5d17507a19e865b2aa6e6fc27c52a2342c298ea9478 0.1s done
+#12 exporting manifest list sha256:5ac61393193db64e14a6a05905051a732c8fb2ced1891fdb7959c39878f5a19b
+#12 exporting manifest list sha256:5ac61393193db64e14a6a05905051a732c8fb2ced1891fdb7959c39878f5a19b 0.1s done
+#12 naming to docker.io/library/resilient-api-worker:phase3 0.0s done
+#12 unpacking to docker.io/library/resilient-api-worker:phase3 0.1s done
+#12 DONE 1.1s
+
+#13 resolving provenance for metadata file
+#13 DONE 0.0s
+ Image resilient-api-worker:phase3 Built 
+ Container rag-worker-p4-test-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-test-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-test-80945b86-tests-run-3b17bc064494 Creating 
+ Container rag-worker-p4-test-80945b86-tests-run-3b17bc064494 Created 
+test_cooperative_context_deadline (test_handlers.HandlerTests.test_cooperative_context_deadline) ... ok
+test_csv_transform_is_bounded_and_deterministic (test_handlers.HandlerTests.test_csv_transform_is_bounded_and_deterministic) ... ok
+test_image_metadata_reads_png_header_without_decoder (test_handlers.HandlerTests.test_image_metadata_reads_png_header_without_decoder) ... ok
+test_image_rejects_malformed_crc_and_non_png (test_handlers.HandlerTests.test_image_rejects_malformed_crc_and_non_png) ... ok
+test_notification_is_simulated_and_allowlisted (test_handlers.HandlerTests.test_notification_is_simulated_and_allowlisted) ... ok
+test_synthetic_report_aggregates_and_validates (test_handlers.HandlerTests.test_synthetic_report_aggregates_and_validates) ... ok
+test_unknown_job_type_never_loads_or_executes_code (test_handlers.HandlerTests.test_unknown_job_type_never_loads_or_executes_code) ... ok
+test_handler_timeout_is_killed_and_recorded (test_processes.WorkerProcessIntegrationTests.test_handler_timeout_is_killed_and_recorded) ... ok
+test_job_specific_runtime_limit_is_enforced (test_processes.WorkerProcessIntegrationTests.test_job_specific_runtime_limit_is_enforced) ... ok
+test_live_database_disconnect_stops_child_and_worker_recovers (test_processes.WorkerProcessIntegrationTests.test_live_database_disconnect_stops_child_and_worker_recovers) ... ok
+test_paused_worker_cannot_ack_after_lease_expiry_and_replacement_claim (test_processes.WorkerProcessIntegrationTests.test_paused_worker_cannot_ack_after_lease_expiry_and_replacement_claim) ... ok
+test_sigkill_expires_lease_then_another_process_recovers_job (test_processes.WorkerProcessIntegrationTests.test_sigkill_expires_lease_then_another_process_recovers_job) ... ok
+test_sigterm_stops_claiming_and_drains_active_work (test_processes.WorkerProcessIntegrationTests.test_sigterm_stops_claiming_and_drains_active_work) ... ok
+test_three_processes_distribute_work_and_keep_a_single_valid_lease_owner (test_processes.WorkerProcessIntegrationTests.test_three_processes_distribute_work_and_keep_a_single_valid_lease_owner) ... ok
+test_worker_killed_after_claim_before_handler_start_is_reclaimed (test_processes.WorkerProcessIntegrationTests.test_worker_killed_after_claim_before_handler_start_is_reclaimed) ... ok
+test_worker_killed_after_handler_work_before_ack_repeats_idempotent_simulation (test_processes.WorkerProcessIntegrationTests.test_worker_killed_after_handler_work_before_ack_repeats_idempotent_simulation) ... ok
+test_claim_after_expiry_is_competed_and_only_one_new_generation_wins (test_repository.RepositoryIntegrationTests.test_claim_after_expiry_is_competed_and_only_one_new_generation_wins) ... ok
+test_database_connection_termination_is_detected_and_reconnected (test_repository.RepositoryIntegrationTests.test_database_connection_termination_is_detected_and_reconnected) ... ok
+test_expired_final_attempt_is_abandoned (test_repository.RepositoryIntegrationTests.test_expired_final_attempt_is_abandoned) ... ok
+test_idempotency_key_deduplicates_and_rejects_changed_contents (test_repository.RepositoryIntegrationTests.test_idempotency_key_deduplicates_and_rejects_changed_contents) ... ok
+test_operator_replay_preserves_source_and_creates_new_idempotent_handler_work (test_repository.RepositoryIntegrationTests.test_operator_replay_preserves_source_and_creates_new_idempotent_handler_work) ... ok
+test_repeated_failures_dead_letter_then_explicit_retry_and_replay (test_repository.RepositoryIntegrationTests.test_repeated_failures_dead_letter_then_explicit_retry_and_replay) ... ok
+test_retry_backoff_and_final_attempt_abandonment (test_repository.RepositoryIntegrationTests.test_retry_backoff_and_final_attempt_abandonment) ... ok
+test_stale_lease_token_cannot_complete_after_reclaim (test_repository.RepositoryIntegrationTests.test_stale_lease_token_cannot_complete_after_reclaim) ... ok
+test_two_independent_connections_cannot_claim_one_valid_lease (test_repository.RepositoryIntegrationTests.test_two_independent_connections_cannot_claim_one_valid_lease) ... ok
+test_worker_heartbeat_stale_threshold_is_operator_configurable (test_repository.RepositoryIntegrationTests.test_worker_heartbeat_stale_threshold_is_operator_configurable) ... ok
+test_resource_and_identity_bounds (test_runtime_config.WorkerConfigTests.test_resource_and_identity_bounds) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 55.236s
+
+OK
+
+> docker compose -p rag-worker-p4-test-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml down --volumes
+ Container rag-worker-p4-test-80945b86-postgres-1 Stopping 
+ Container rag-worker-p4-test-80945b86-postgres-1 Stopped 
+ Container rag-worker-p4-test-80945b86-postgres-1 Removing 
+ Container rag-worker-p4-test-80945b86-postgres-1 Removed 
+ Volume rag-worker-p4-test-80945b86_pgdata Removing 
+ Network rag-worker-p4-test-80945b86_default Removing 
+ Volume rag-worker-p4-test-80945b86_pgdata Removed 
+ Network rag-worker-p4-test-80945b86_default Removed 
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile workers up --build --detach
+ Image resilient-api-worker:phase3 Building 
+ Image resilient-api-worker:phase3 Building 
+ Image resilient-api-worker:phase3 Building 
+ Image resilient-api-worker:phase3 Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 2.12kB done
+#1 DONE 0.0s
+
+#2 [worker-1 internal] load build definition from Dockerfile.worker
+#2 transferring dockerfile: 531B done
+#2 DONE 0.0s
+
+#3 [migrate internal] load metadata for docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#3 DONE 0.1s
+
+#4 [worker-1 internal] load .dockerignore
+#4 transferring context:
+#4 transferring context: 204B done
+#4 DONE 0.0s
+
+#5 [worker-2 1/6] FROM docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534
+#5 resolve docker.io/library/python:3.11-slim@sha256:9534e5a8e315485d4061ed659af0fd78a284c015f9b73661b41d6bab25604534 0.1s done
+#5 DONE 0.1s
+
+#6 [migrate internal] load build context
+#6 transferring context: 1.82kB done
+#6 DONE 0.0s
+
+#7 [worker-3 4/6] RUN pip install --no-cache-dir --requirement requirements.txt
+#7 CACHED
+
+#8 [worker-3 5/6] COPY worker_runtime ./worker_runtime
+#8 CACHED
+
+#9 [worker-3 2/6] WORKDIR /app
+#9 CACHED
+
+#10 [worker-3 3/6] COPY requirements.txt ./
+#10 CACHED
+
+#11 [worker-3 6/6] RUN groupadd --gid 10001 worker && useradd --uid 10001 --gid worker --no-create-home --home-dir /nonexistent --shell /usr/sbin/nologin worker
+#11 CACHED
+
+#12 [worker-3] exporting to image
+#12 exporting layers done
+#12 exporting manifest sha256:ffca9b506ba365bb23b3c3027808d196480d2994667257564d10589a7f44412e 0.1s done
+#12 exporting config sha256:22f6e439471cf54c9eaf8543f3702c46cef47045af5d4bc3237d2ac146bfd2f8
+#12 exporting config sha256:22f6e439471cf54c9eaf8543f3702c46cef47045af5d4bc3237d2ac146bfd2f8 0.2s done
+#12 exporting attestation manifest sha256:063f4254d32d9dd090b1cf6ea741a0d9bfff322f736dbf15a103d668e99546d9
+#12 exporting attestation manifest sha256:063f4254d32d9dd090b1cf6ea741a0d9bfff322f736dbf15a103d668e99546d9 0.2s done
+#12 exporting manifest list sha256:232b4eb8b6221065a8dcbdb1bd739334c1f02d8fb89b5e12e03c72bf9cd34910
+#12 exporting manifest list sha256:232b4eb8b6221065a8dcbdb1bd739334c1f02d8fb89b5e12e03c72bf9cd34910 0.1s done
+#12 naming to docker.io/library/resilient-api-worker:phase3
+#12 naming to docker.io/library/resilient-api-worker:phase3 0.0s done
+#12 unpacking to docker.io/library/resilient-api-worker:phase3 0.0s done
+#12 DONE 0.9s
+
+#13 [migrate] exporting to image
+#13 exporting layers done
+#13 exporting manifest sha256:8eaaed4141a8daed8fca2484effccb4a57b0d42f36dc08869a7e4b9bcee75389 0.1s done
+#13 exporting config sha256:3d24866f764a084e377e1e32c7c632bec6245ad08317a120c01fba359369b8a1 0.2s done
+#13 exporting attestation manifest sha256:7ca8853378a2e97c5a387c1c75fd9f372b80fcd14135be4c50c205ee94ac77b2 0.2s done
+#13 exporting manifest list sha256:4a5fcb8657638c60e203122951fbbb8c5a07c92a9d46d2875718120d4da1bf53 0.1s done
+#13 naming to docker.io/library/resilient-api-worker:phase3 0.0s done
+#13 unpacking to docker.io/library/resilient-api-worker:phase3 0.0s done
+#13 DONE 0.9s
+
+#14 [worker-1] exporting to image
+#14 exporting layers done
+#14 exporting manifest sha256:7e3e2f67164eed70b6d463e74fb898447df76e449627a406b7179172a5551f5c 0.1s done
+#14 exporting config sha256:9804dbb8fe2bd3940ca924542128d0b4fed9249f3c16d7a77242ea85c8c9e58e 0.2s done
+#14 exporting attestation manifest sha256:65738b805a526ba56c882c89d20b11e4fb6713da8b57e8e97cda93f6c5b40e69 0.2s done
+#14 exporting manifest list sha256:af6ab0caeacb4780bc556f60e4404b5134494533355984b80cfa9897a296e3b2 0.2s done
+#14 naming to docker.io/library/resilient-api-worker:phase3 0.0s done
+#14 unpacking to docker.io/library/resilient-api-worker:phase3 0.1s done
+#14 DONE 0.9s
+
+#15 [worker-2] exporting to image
+#15 exporting layers done
+#15 exporting manifest sha256:667839205934e07e2d3400c245564adb36a50e7af4d9d9e395416eec73f7c326 0.2s done
+#15 exporting config sha256:d488a35e6c6f20f2c29930653f18f0ab3a0e1eccb137fdd5baf5d99894a2de30 0.2s done
+#15 exporting attestation manifest sha256:d42acdceaf6c77aa2ef7c5d928a7c726d2c955c07e23cef9f558f0a8fb818bd7 0.2s done
+#15 exporting manifest list sha256:9f0956a05b76f54e2a929c6fd1ba141bf7eec240882f5f8d74c4f2fc514cf197 0.2s done
+#15 naming to docker.io/library/resilient-api-worker:phase3 0.0s done
+#15 unpacking to docker.io/library/resilient-api-worker:phase3 0.1s done
+#15 DONE 0.9s
+
+#16 [worker-3] resolving provenance for metadata file
+#16 ...
+
+#17 [worker-1] resolving provenance for metadata file
+#17 DONE 0.1s
+
+#18 [migrate] resolving provenance for metadata file
+#18 DONE 0.3s
+
+#16 [worker-3] resolving provenance for metadata file
+#16 DONE 0.3s
+
+#19 [worker-2] resolving provenance for metadata file
+#19 DONE 0.0s
+ Image resilient-api-worker:phase3 Built 
+ Image resilient-api-worker:phase3 Built 
+ Image resilient-api-worker:phase3 Built 
+ Image resilient-api-worker:phase3 Built 
+ Network rag-worker-p4-demo-80945b86_default Creating 
+ Volume rag-worker-p4-demo-80945b86_pgdata Creating 
+ Network rag-worker-p4-demo-80945b86_default Creating 
+ Volume rag-worker-p4-demo-80945b86_pgdata Creating 
+ Volume rag-worker-p4-demo-80945b86_pgdata Created 
+ Volume rag-worker-p4-demo-80945b86_pgdata Created 
+ Network rag-worker-p4-demo-80945b86_default Created 
+ Network rag-worker-p4-demo-80945b86_default Created 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Creating 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Created 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Creating 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Created 
+ Container rag-worker-p4-demo-80945b86-worker-3-1 Creating 
+ Container rag-worker-p4-demo-80945b86-worker-2-1 Creating 
+ Container rag-worker-p4-demo-80945b86-worker-1-1 Creating 
+ Container rag-worker-p4-demo-80945b86-worker-2-1 Created 
+ Container rag-worker-p4-demo-80945b86-worker-3-1 Created 
+ Container rag-worker-p4-demo-80945b86-worker-1-1 Created 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Starting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Started 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Starting 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Started 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Exited 
+ Container rag-worker-p4-demo-80945b86-worker-2-1 Starting 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Exited 
+ Container rag-worker-p4-demo-80945b86-worker-1-1 Starting 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Exited 
+ Container rag-worker-p4-demo-80945b86-worker-3-1 Starting 
+ Container rag-worker-p4-demo-80945b86-worker-2-1 Started 
+ Container rag-worker-p4-demo-80945b86-worker-1-1 Started 
+ Container rag-worker-p4-demo-80945b86-worker-3-1 Started 
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile ops run --rm workers
+ Container rag-worker-p4-demo-80945b86-postgres-1 Running 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-workers-run-5adaf57bc64d Creating 
+ Container rag-worker-p4-demo-80945b86-workers-run-5adaf57bc64d Created 
+[{"worker_id": "38d253a6-e2ae-4b4c-bf60-e34e4e639700", "name": "worker-2", "pid": 1, "hostname": "1b3bd4c8bb58", "concurrency": 2, "state": "active", "started_at": "2026-10-27T17:50:01.106719+00:00", "heartbeat_at": "2026-10-27T17:50:01.113800+00:00", "stale": false}, {"worker_id": "325096d2-105c-441c-8353-fdc2a55da8eb", "name": "worker-1", "pid": 1, "hostname": "017b97c2df56", "concurrency": 2, "state": "active", "started_at": "2026-10-27T17:50:01.389698+00:00", "heartbeat_at": "2026-10-27T17:50:01.395812+00:00", "stale": false}, {"worker_id": "47f3aaee-3d14-447b-aef7-b88aa95ed2ce", "name": "worker-3", "pid": 1, "hostname": "aef5ccf64ba2", "concurrency": 2, "state": "active", "started_at": "2026-10-27T17:50:01.647043+00:00", "heartbeat_at": "2026-10-27T17:50:01.653746+00:00", "stale": false}]
+Verified three active process UUIDs: 38d253a6-e2ae-4b4c-bf60-e34e4e639700, 325096d2-105c-441c-8353-fdc2a55da8eb, 47f3aaee-3d14-447b-aef7-b88aa95ed2ce
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile ops run --rm enqueue enqueue --type image_metadata --payload-json {"png_base64":"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1Pe"}
+ Container rag-worker-p4-demo-80945b86-postgres-1 Running 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-enqueue-run-223f62e300f6 Creating 
+ Container rag-worker-p4-demo-80945b86-enqueue-run-223f62e300f6 Created 
+{"job_id": 1, "job_type": "image_metadata", "state": "queued"}
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile ops run --rm enqueue enqueue --type csv_transform --payload-json {"column":"city","csv_text":"name,city\nAda,london\n"}
+ Container rag-worker-p4-demo-80945b86-postgres-1 Running 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-enqueue-run-d4498942bb51 Creating 
+ Container rag-worker-p4-demo-80945b86-enqueue-run-d4498942bb51 Created 
+{"job_id": 2, "job_type": "csv_transform", "state": "queued"}
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile ops run --rm enqueue enqueue --type synthetic_report --payload-json {"records":[{"amount":4,"category":"books"},{"amount":7,"category":"books"}]}
+ Container rag-worker-p4-demo-80945b86-postgres-1 Running 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-enqueue-run-03f2837cdf77 Creating 
+ Container rag-worker-p4-demo-80945b86-enqueue-run-03f2837cdf77 Created 
+{"job_id": 3, "job_type": "synthetic_report", "state": "queued"}
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile ops run --rm enqueue enqueue --type notification_simulation --payload-json {"delay_ms":100,"template":"receipt","recipient_ref":"demo_account"}
+ Container rag-worker-p4-demo-80945b86-postgres-1 Running 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-enqueue-run-b7f12e95fde0 Creating 
+ Container rag-worker-p4-demo-80945b86-enqueue-run-b7f12e95fde0 Created 
+{"job_id": 4, "job_type": "notification_simulation", "state": "queued"}
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile ops run --rm status status --limit 100
+ Container rag-worker-p4-demo-80945b86-postgres-1 Running 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-status-run-6c9557d2e628 Creating 
+ Container rag-worker-p4-demo-80945b86-status-run-6c9557d2e628 Created 
+[{"id": 4, "job_type": "notification_simulation", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:13.233607+00:00"}, {"id": 3, "job_type": "synthetic_report", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:10.792087+00:00"}, {"id": 2, "job_type": "csv_transform", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:08.184554+00:00"}, {"id": 1, "job_type": "image_metadata", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:05.651468+00:00"}]
+All four allowlisted workload jobs succeeded: 1, 2, 3, 4
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile ops run --rm enqueue enqueue --type notification_simulation --payload-json {"delay_ms":5000,"template":"alert","recipient_ref":"postgres_outage"} --max-attempts 4
+ Container rag-worker-p4-demo-80945b86-postgres-1 Running 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-enqueue-run-c055d3b9bbd7 Creating 
+ Container rag-worker-p4-demo-80945b86-enqueue-run-c055d3b9bbd7 Created 
+{"job_id": 5, "job_type": "notification_simulation", "state": "queued"}
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile ops run --rm status status --limit 100
+ Container rag-worker-p4-demo-80945b86-postgres-1 Running 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-status-run-93bd6eb188c8 Creating 
+ Container rag-worker-p4-demo-80945b86-status-run-93bd6eb188c8 Created 
+[{"id": 5, "job_type": "notification_simulation", "state": "running", "attempts": 1, "max_attempts": 4, "worker_id": "47f3aaee-3d14-447b-aef7-b88aa95ed2ce", "lease_until": "2026-10-27T17:50:26.264930+00:00", "last_error_code": null, "created_at": "2026-10-27T17:50:18.155179+00:00"}, {"id": 4, "job_type": "notification_simulation", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:13.233607+00:00"}, {"id": 3, "job_type": "synthetic_report", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:10.792087+00:00"}, {"id": 2, "job_type": "csv_transform", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:08.184554+00:00"}, {"id": 1, "job_type": "image_metadata", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:05.651468+00:00"}]
+Stopping and restarting only this isolated Compose PostgreSQL service while job 5 is active.
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml stop --timeout 1 postgres
+ Container rag-worker-p4-demo-80945b86-postgres-1 Stopping 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Stopped 
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml start postgres
+ Container rag-worker-p4-demo-80945b86-postgres-1 Starting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Started 
+Isolated PostgreSQL healthcheck returned healthy after restart.
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile ops run --rm status status --limit 100
+ Container rag-worker-p4-demo-80945b86-postgres-1 Running 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-status-run-0fd5bf96e531 Creating 
+ Container rag-worker-p4-demo-80945b86-status-run-0fd5bf96e531 Created 
+[{"id": 5, "job_type": "notification_simulation", "state": "running", "attempts": 2, "max_attempts": 4, "worker_id": "47f3aaee-3d14-447b-aef7-b88aa95ed2ce", "lease_until": "2026-10-27T17:50:34.402181+00:00", "last_error_code": null, "created_at": "2026-10-27T17:50:18.155179+00:00"}, {"id": 4, "job_type": "notification_simulation", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:13.233607+00:00"}, {"id": 3, "job_type": "synthetic_report", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:10.792087+00:00"}, {"id": 2, "job_type": "csv_transform", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:08.184554+00:00"}, {"id": 1, "job_type": "image_metadata", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:05.651468+00:00"}]
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile ops run --rm status status --limit 100
+ Container rag-worker-p4-demo-80945b86-postgres-1 Running 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Waiting 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Healthy 
+ Container rag-worker-p4-demo-80945b86-status-run-9ae442fd2c10 Creating 
+ Container rag-worker-p4-demo-80945b86-status-run-9ae442fd2c10 Created 
+[{"id": 5, "job_type": "notification_simulation", "state": "succeeded", "attempts": 2, "max_attempts": 4, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:18.155179+00:00"}, {"id": 4, "job_type": "notification_simulation", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:13.233607+00:00"}, {"id": 3, "job_type": "synthetic_report", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:10.792087+00:00"}, {"id": 2, "job_type": "csv_transform", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:08.184554+00:00"}, {"id": 1, "job_type": "image_metadata", "state": "succeeded", "attempts": 1, "max_attempts": 5, "worker_id": null, "lease_until": null, "last_error_code": null, "created_at": "2026-10-27T17:50:05.651468+00:00"}]
+Temporary PostgreSQL outage recovered job 5 on attempt 2.
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml logs --no-color worker-1 worker-2 worker-3
+worker-2-1  | {"time":"2026-10-27T17:50:01Z","level":"info","event":"worker.starting","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","name":"worker-2","concurrency":2,"pid":1}
+worker-2-1  | {"time":"2026-10-27T17:50:01Z","level":"info","event":"worker.started","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","name":"worker-2"}
+worker-3-1  | {"time":"2026-10-27T17:50:01Z","level":"info","event":"worker.starting","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","name":"worker-3","concurrency":2,"pid":1}
+worker-2-1  | {"time":"2026-10-27T17:50:08Z","level":"info","event":"job.claimed","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","job_id":2,"job_type":"csv_transform","attempt":1,"generation":1}
+worker-3-1  | {"time":"2026-10-27T17:50:01Z","level":"info","event":"worker.started","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","name":"worker-3"}
+worker-2-1  | {"time":"2026-10-27T17:50:08Z","level":"info","event":"job.started","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","job_id":2,"job_type":"csv_transform","attempt":1,"generation":1,"runtime_timeout":10.0}
+worker-2-1  | {"time":"2026-10-27T17:50:08Z","level":"info","event":"job.succeeded","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","job_id":2,"job_type":"csv_transform","attempt":1}
+worker-2-1  | {"time":"2026-10-27T17:50:13Z","level":"info","event":"job.claimed","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","job_id":4,"job_type":"notification_simulation","attempt":1,"generation":1}
+worker-2-1  | {"time":"2026-10-27T17:50:13Z","level":"info","event":"job.started","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","job_id":4,"job_type":"notification_simulation","attempt":1,"generation":1,"runtime_timeout":10.0}
+worker-2-1  | {"time":"2026-10-27T17:50:13Z","level":"info","event":"job.effect_applied","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","job_id":4,"generation":1,"idempotency_key":"worker-notification-job-4"}
+worker-2-1  | {"time":"2026-10-27T17:50:13Z","level":"info","event":"job.succeeded","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","job_id":4,"job_type":"notification_simulation","attempt":1}
+worker-2-1  | {"time":"2026-10-27T17:50:21Z","level":"warning","event":"database.unavailable","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","error_code":"AdminShutdown:57P01","active":0}
+worker-2-1  | {"time":"2026-10-27T17:50:23Z","level":"warning","event":"database.unavailable","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","error_code":"ConnectionTimeout","active":0}
+worker-2-1  | {"time":"2026-10-27T17:50:27Z","level":"warning","event":"database.unavailable","worker_id":"38d253a6-e2ae-4b4c-bf60-e34e4e639700","error_code":"OperationalError","active":0}
+worker-3-1  | {"time":"2026-10-27T17:50:05Z","level":"info","event":"job.claimed","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":1,"job_type":"image_metadata","attempt":1,"generation":1}
+worker-3-1  | {"time":"2026-10-27T17:50:05Z","level":"info","event":"job.started","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":1,"job_type":"image_metadata","attempt":1,"generation":1,"runtime_timeout":10.0}
+worker-3-1  | {"time":"2026-10-27T17:50:06Z","level":"info","event":"job.succeeded","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":1,"job_type":"image_metadata","attempt":1}
+worker-3-1  | {"time":"2026-10-27T17:50:10Z","level":"info","event":"job.claimed","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":3,"job_type":"synthetic_report","attempt":1,"generation":1}
+worker-3-1  | {"time":"2026-10-27T17:50:10Z","level":"info","event":"job.started","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":3,"job_type":"synthetic_report","attempt":1,"generation":1,"runtime_timeout":10.0}
+worker-3-1  | {"time":"2026-10-27T17:50:11Z","level":"info","event":"job.succeeded","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":3,"job_type":"synthetic_report","attempt":1}
+worker-3-1  | {"time":"2026-10-27T17:50:18Z","level":"info","event":"job.claimed","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":5,"job_type":"notification_simulation","attempt":1,"generation":1}
+worker-3-1  | {"time":"2026-10-27T17:50:18Z","level":"info","event":"job.started","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":5,"job_type":"notification_simulation","attempt":1,"generation":1,"runtime_timeout":10.0}
+worker-3-1  | {"time":"2026-10-27T17:50:21Z","level":"warning","event":"database.unavailable","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","error_code":"AdminShutdown:57P01","active":1}
+worker-3-1  | {"time":"2026-10-27T17:50:25Z","level":"warning","event":"database.unavailable","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","error_code":"OperationalError","active":0}
+worker-3-1  | {"time":"2026-10-27T17:50:26Z","level":"info","event":"job.claimed","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":5,"job_type":"notification_simulation","attempt":2,"generation":2}
+worker-3-1  | {"time":"2026-10-27T17:50:26Z","level":"info","event":"job.started","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":5,"job_type":"notification_simulation","attempt":2,"generation":2,"runtime_timeout":10.0}
+worker-3-1  | {"time":"2026-10-27T17:50:31Z","level":"info","event":"job.effect_applied","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":5,"generation":2,"idempotency_key":"worker-notification-job-5"}
+worker-3-1  | {"time":"2026-10-27T17:50:31Z","level":"info","event":"job.succeeded","worker_id":"47f3aaee-3d14-447b-aef7-b88aa95ed2ce","job_id":5,"job_type":"notification_simulation","attempt":2}
+worker-1-1  | {"time":"2026-10-27T17:50:01Z","level":"info","event":"worker.starting","worker_id":"325096d2-105c-441c-8353-fdc2a55da8eb","name":"worker-1","concurrency":2,"pid":1}
+worker-1-1  | {"time":"2026-10-27T17:50:01Z","level":"info","event":"worker.started","worker_id":"325096d2-105c-441c-8353-fdc2a55da8eb","name":"worker-1"}
+worker-1-1  | {"time":"2026-10-27T17:50:21Z","level":"warning","event":"database.unavailable","worker_id":"325096d2-105c-441c-8353-fdc2a55da8eb","error_code":"AdminShutdown:57P01","active":0}
+worker-1-1  | {"time":"2026-10-27T17:50:23Z","level":"warning","event":"database.unavailable","worker_id":"325096d2-105c-441c-8353-fdc2a55da8eb","error_code":"ConnectionTimeout","active":0}
+worker-1-1  | {"time":"2026-10-27T17:50:27Z","level":"warning","event":"database.unavailable","worker_id":"325096d2-105c-441c-8353-fdc2a55da8eb","error_code":"OperationalError","active":0}
+
+> docker compose -p rag-worker-p4-demo-80945b86 -f C:\Users\saura\Desktop\resilient-api-gateway\compose.workers.yaml --profile workers --profile ops down --volumes
+ Container rag-worker-p4-demo-80945b86-worker-2-1 Stopping 
+ Container rag-worker-p4-demo-80945b86-worker-1-1 Stopping 
+ Container rag-worker-p4-demo-80945b86-worker-3-1 Stopping 
+ Container rag-worker-p4-demo-80945b86-worker-2-1 Stopped 
+ Container rag-worker-p4-demo-80945b86-worker-2-1 Removing 
+ Container rag-worker-p4-demo-80945b86-worker-2-1 Removed 
+ Container rag-worker-p4-demo-80945b86-worker-3-1 Stopped 
+ Container rag-worker-p4-demo-80945b86-worker-3-1 Removing 
+ Container rag-worker-p4-demo-80945b86-worker-1-1 Stopped 
+ Container rag-worker-p4-demo-80945b86-worker-1-1 Removing 
+ Container rag-worker-p4-demo-80945b86-worker-3-1 Removed 
+ Container rag-worker-p4-demo-80945b86-worker-1-1 Removed 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Stopping 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Stopped 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Removing 
+ Container rag-worker-p4-demo-80945b86-migrate-1 Removed 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Stopping 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Stopped 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Removing 
+ Container rag-worker-p4-demo-80945b86-postgres-1 Removed 
+ Network rag-worker-p4-demo-80945b86_default Removing 
+ Volume rag-worker-p4-demo-80945b86_pgdata Removing 
+ Volume rag-worker-p4-demo-80945b86_pgdata Removed 
+ Network rag-worker-p4-demo-80945b86_default Removed 
+Result: all PostgreSQL lease, fencing, retry/replay, process crash-window, temporary database outage, SIGTERM, and SIGKILL recovery checks passed.
