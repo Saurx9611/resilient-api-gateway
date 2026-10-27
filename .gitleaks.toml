@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Fixed synthetic bearer token used by a gateway authentication test only"
+condition = "AND"
+paths = ['''internal/gateway/demo_test\.go''']
+regexes = ['''0123456789abcdef0123456789abcdef''']

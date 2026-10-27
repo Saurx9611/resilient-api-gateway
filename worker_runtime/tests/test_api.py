@@ -228,12 +228,60 @@ class ControlAPIIntegrationTests(unittest.TestCase):
         unreachable = TestClient(create_app(
             dsn="postgresql://gateway:unused@127.0.0.1:1/gateway_test?connect_timeout=1",
             api_keys=KEYS, rate_limit=10))
+        # Liveness reports the process; readiness reflects its PostgreSQL dependency.
+        self.assertEqual(200, unreachable.get("/healthz").status_code)
+        self.assertEqual(503, unreachable.get("/readyz").status_code)
         response = unreachable.get("/v1/queue/stats", headers=self.reader)
         self.assertEqual(503, response.status_code)
         self.assertEqual("database_unavailable", response.json()["error"]["code"])
         self.assertNotIn("127.0.0.1", response.text)
         unreachable.close()
         unreachable.app.state.repository.close()
+
+    def test_cancel_and_worker_ack_race_finishes_without_deadlock(self) -> None:
+        worker = Repository(dsn(), __import__("uuid").uuid4(), "cancel-ack-race", 1)
+        worker.check_schema()
+        worker.register()
+        job_id = worker.enqueue("synthetic_report", {"records": []})
+        claim = worker.claim(10)
+        self.assertEqual(job_id, claim.id)
+        self.assertIsNotNone(worker.mark_started(claim, claim_latency_seconds=0.001))
+        gate = threading.Barrier(2)
+
+        def acknowledge():
+            gate.wait(timeout=3)
+            return worker.acknowledge_cancel(claim)
+
+        def cancel():
+            gate.wait(timeout=3)
+            return self.client.post(f"/v1/jobs/{job_id}/cancel", headers=self.admin,
+                                    json={"reason": "concurrency regression"})
+
+        try:
+            with ThreadPoolExecutor(max_workers=2) as executor:
+                ack_future = executor.submit(acknowledge)
+                cancel_future = executor.submit(cancel)
+                ack_future.result(timeout=5)
+                response = cancel_future.result(timeout=5)
+            self.assertEqual(200, response.status_code)
+            # If the acknowledgement acquired the row first, cancellation is
+            # recorded afterward and the same owner acknowledges it once more.
+            worker.acknowledge_cancel(claim)
+            self.assertEqual("canceled", self.app.state.repository.job(job_id)["state"])
+        finally:
+            worker.close()
+
+    def test_internal_error_log_omits_exception_message(self) -> None:
+        self.app.add_api_route("/test/injected-error", lambda: (_ for _ in ()).throw(
+            RuntimeError("credential=synthetic-sensitive-value")))
+        client = TestClient(self.app, raise_server_exceptions=False)
+        with self.assertLogs("chronos.api", level="ERROR") as captured:
+            response = client.get("/test/injected-error")
+        client.close()
+        self.assertEqual(500, response.status_code)
+        logs = "\n".join(captured.output)
+        self.assertIn("request_failed", logs)
+        self.assertNotIn("synthetic-sensitive-value", logs)
 
     def test_swagger_openapi_documents_bearer_auth_and_request_schemas(self) -> None:
         self.assertEqual(200, self.client.get("/healthz").status_code)

@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 import os
 import re
 import uuid
@@ -33,6 +34,15 @@ MAX_REQUEST_BYTES = 64 * 1024
 security = HTTPBearer(auto_error=False, scheme_name="BearerToken")
 JOB_TYPES = ("image_metadata", "csv_transform", "synthetic_report", "notification_simulation")
 JOB_STATES = ("queued", "running", "succeeded", "dead", "canceled")
+logger = logging.getLogger("chronos.api")
+
+
+def _log_api_event(level: int, event: str, request_id: str | None, *, error_code: str | None = None) -> None:
+    record = {"time": datetime.now(UTC).isoformat(), "level": logging.getLevelName(level).lower(),
+              "event": event, "request_id": request_id}
+    if error_code is not None:
+        record["error_code"] = error_code
+    logger.log(level, json.dumps(record, separators=(",", ":"), ensure_ascii=True))
 
 
 class StrictModel(BaseModel):
@@ -187,12 +197,17 @@ def create_app(*, dsn: str | None = None,
 
     @app.exception_handler(DatabaseUnavailable)
     async def database_error(request: Request, exc: DatabaseUnavailable):
+        _log_api_event(logging.WARNING, "database_unavailable",
+                       getattr(request.state, "request_id", None), error_code=exc.code)
         return JSONResponse(status_code=503, content={"error": {"code": "database_unavailable",
                             "message": "control-plane storage is temporarily unavailable",
                             "request_id": getattr(request.state, "request_id", None)}})
 
     @app.exception_handler(Exception)
     async def internal_error(request: Request, exc: Exception):
+        # Do not log exception text, request bodies, SQL, or credentials. The
+        # request ID is the correlation handle for an operator-side trace.
+        _log_api_event(logging.ERROR, "request_failed", getattr(request.state, "request_id", None))
         return JSONResponse(status_code=500, content={"error": {"code": "internal_error",
                             "message": "request could not be completed",
                             "request_id": getattr(request.state, "request_id", None)}})

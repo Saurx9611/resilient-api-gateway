@@ -103,6 +103,11 @@ application’s 10-second graceful drain.
 
 ## Exact hosted deployment checklist
 
+Before the checklist below is used for a real release, follow the
+[release rollback and database recovery runbook](operations-runbook.md). It
+defines the required compatibility checks and explicitly avoids in-place
+database rollback.
+
 1. Connect this repository to Render and create a Blueprint from `render.yaml`.
    Confirm all five service regions agree and review current prices before
    applying it. The Key Value `ipAllowList: []` is intentional: Redis is private.

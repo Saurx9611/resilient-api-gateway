@@ -16,19 +16,23 @@ jobs:
         ports: ['6379:6379']
         options: --health-cmd "redis-cli ping" --health-interval 2s --health-timeout 2s --health-retries 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version-file: go.mod
           cache: false
       - name: Formatting
         run: test -z "$(gofmt -l cmd internal)"
+      - name: Source secret scan
+        run: docker run --rm -v "${{ github.workspace }}:/repo" ghcr.io/gitleaks/gitleaks:v8.30.0@sha256:691af3c7c5a48b16f187ce3446d5f194838f91238f27270ed36eef6359a574d9 dir --redact --no-banner --config /repo/.gitleaks.toml /repo
+      - name: Go dependency vulnerability scan
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.9.0 ./...
       - run: go vet ./...
       - run: go test ./...
       - run: go test -race ./...
       - run: go build -o bin/ ./cmd/...
       - run: ./bin/gateway -h
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
           cache: npm
@@ -49,6 +53,12 @@ jobs:
           test "$(docker image inspect resilient-upstream:ci --format '{{.Config.User}}')" = '10001:10001'
           test "$(docker image inspect resilient-gateway-web:ci --format '{{.Config.User}}')" = '10001:10001'
           test "$(docker image inspect resilient-gateway:ci resilient-upstream:ci resilient-gateway-web:ci --format '{{if .Config.Healthcheck}}healthcheck-configured{{else}}missing-healthcheck{{end}}' | grep -c '^healthcheck-configured$')" -eq 3
+      - name: Container vulnerability scan
+        run: |
+          mkdir -p "$HOME/.cache"
+          for image in resilient-gateway:ci resilient-upstream:ci resilient-gateway-web:ci; do
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME/.cache:/root/.cache" aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 "$image"
+          done
       - name: Compose smoke test
         env:
           GATEWAY_DEMO_TOKEN: ci-only-demo-token-0123456789abcdef

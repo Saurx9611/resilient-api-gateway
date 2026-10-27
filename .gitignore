@@ -1,6 +1,11 @@
 .tools/
 .gocache/
 .gopath/
+.env
+.env.*
+!.env.example
+.envrc
+secrets/
 bin/
 *.test
 coverage.out
@@ -8,3 +13,6 @@ coverage.out
 __pycache__/
 *.py[cod]
 .pytest_cache/
+web/node_modules/
+web/.next/
+worker_runtime/.venv/

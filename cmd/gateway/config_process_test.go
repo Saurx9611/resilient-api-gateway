@@ -43,7 +43,7 @@ func TestConfigCLIProcessReloadAndRestoration(t *testing.T) {
 		if e := os.WriteFile(path+".tmp", data, 0600); e != nil {
 			t.Fatal(e)
 		}
-		if e := os.Rename(path+".tmp", path); e != nil {
+		if e := replaceTestFile(path+".tmp", path); e != nil {
 			t.Fatal(e)
 		}
 	}
