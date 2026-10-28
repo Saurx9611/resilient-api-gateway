@@ -13,14 +13,17 @@ services:
       - key: GATEWAY_DEMO_TOKEN
         sync: false
 
-  - type: pserv
+  - type: web
     name: resilient-gateway
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
     region: oregon
-    plan: 0.5c-512mb
+    plan: free
+    healthCheckPath: /readyz
     envVars:
+      - key: PORT
+        value: 8080
       - key: REDIS_URL
         fromService: {type: keyvalue, name: resilient-gateway-redis, property: connectionString}
       - key: UPSTREAM_ONE_HOSTPORT
@@ -28,9 +31,9 @@ services:
       - key: UPSTREAM_TWO_HOSTPORT
         fromService: {type: pserv, name: resilient-gateway-two, property: hostport}
       - key: GATEWAY_DEMO_TOKEN
-        sync: false
+        generateValue: true
       - key: METRICS_BEARER_TOKEN
-        sync: false
+        generateValue: true
 
   - type: pserv
     name: resilient-gateway-one
