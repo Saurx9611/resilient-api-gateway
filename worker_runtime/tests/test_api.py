@@ -230,7 +230,12 @@ class ControlAPIIntegrationTests(unittest.TestCase):
             api_keys=KEYS, rate_limit=10))
         # Liveness reports the process; readiness reflects its PostgreSQL dependency.
         self.assertEqual(200, unreachable.get("/healthz").status_code)
-        self.assertEqual(503, unreachable.get("/readyz").status_code)
+        with self.assertLogs("psycopg.pool", level="WARNING") as pool_logs:
+            self.assertEqual(503, unreachable.get("/readyz").status_code)
+        pool_text = "\n".join(pool_logs.output)
+        self.assertIn('"event":"database_pool_diagnostic"', pool_text)
+        self.assertNotIn("127.0.0.1", pool_text)
+        self.assertNotIn("connection refused", pool_text)
         response = unreachable.get("/v1/queue/stats", headers=self.reader)
         self.assertEqual(503, response.status_code)
         self.assertEqual("database_unavailable", response.json()["error"]["code"])
@@ -325,7 +330,9 @@ class ControlAPIIntegrationTests(unittest.TestCase):
                             for item in events.json()["items"]))
 
     def test_prometheus_metrics_endpoint_is_private_format_without_job_labels(self) -> None:
-        response = self.client.get("/metrics")
+        self.assertEqual(401, self.client.get("/metrics").status_code)
+        self.assertEqual(403, self.client.get("/metrics", headers=self.reader).status_code)
+        response = self.client.get("/metrics", headers=self.admin)
         self.assertEqual(200, response.status_code)
         self.assertIn("text/plain", response.headers["content-type"])
         self.assertIn("chronos_api_db_pool_connections", response.text)

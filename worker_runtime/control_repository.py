@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import threading
@@ -20,6 +21,24 @@ from .handlers import validate_payload
 from .scheduling import next_occurrence, validate_schedule
 
 UTC = timezone.utc
+
+
+class _ScrubPoolDiagnostics(logging.Filter):
+    """Keep pool failures observable without logging DSNs or driver exception text."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        record.msg = json.dumps({
+            "time": datetime.now(UTC).isoformat(),
+            "level": record.levelname.lower(),
+            "event": "database_pool_diagnostic",
+        }, separators=(",", ":"))
+        record.args = ()
+        record.exc_info = None
+        record.exc_text = None
+        return True
+
+
+logging.getLogger("psycopg.pool").addFilter(_ScrubPoolDiagnostics())
 
 
 class ControlRepository:

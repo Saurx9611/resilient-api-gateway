@@ -221,24 +221,6 @@ def create_app(*, dsn: str | None = None,
         request.app.state.repository.check_schema()
         return {"status": "ready"}
 
-    @app.get("/metrics", include_in_schema=False)
-    def metrics(request: Request):
-        # Kept private to the Compose network; do not publish this port through ingress.
-        stats = request.app.state.repository.pool_stats()
-        snapshot = request.app.state.repository.live_metrics()
-        pool_size.labels(state="open").set(stats["pool_size"])
-        pool_size.labels(state="available").set(stats["pool_available"])
-        pool_size.labels(state="in_use").set(max(0, stats["pool_size"] - stats["pool_available"]))
-        pool_waiters.set(stats["requests_waiting"])
-        pool_max.set(stats["pool_max_size"])
-        for state in ("queued", "running", "succeeded", "dead", "canceled"):
-            job_states.labels(state=state).set(snapshot["states"].get(state, 0))
-        worker_states.labels(state="active").set(snapshot["workers"]["active"])
-        worker_states.labels(state="idle").set(snapshot["workers"]["idle"])
-        for event, value in (("retries", snapshot["recent"]["retries"]), ("expired_leases", snapshot["recent"]["expired"]), ("recovered_jobs", snapshot["recent"]["recovered"])):
-            lifecycle_metrics.labels(event=event).set(value)
-        return Response(generate_latest(request.app.state.metrics_registry), media_type=CONTENT_TYPE_LATEST)
-
     def authorize(scope: str):
         def dependency(request: Request, credentials: HTTPAuthorizationCredentials | None = Depends(security)) -> APIPrincipal:
             if credentials is None or credentials.scheme.lower() != "bearer":
@@ -260,6 +242,24 @@ def create_app(*, dsn: str | None = None,
                 raise HTTPException(429, "rate_limit_exceeded", headers={"Retry-After": "60"})
             return APIPrincipal(subject, scopes)
         return dependency
+
+    @app.get("/metrics", include_in_schema=False)
+    def metrics(request: Request, _principal: APIPrincipal = Depends(authorize("operator"))):
+        # The API has public ingress in production; require operator scope here.
+        stats = request.app.state.repository.pool_stats()
+        snapshot = request.app.state.repository.live_metrics()
+        pool_size.labels(state="open").set(stats["pool_size"])
+        pool_size.labels(state="available").set(stats["pool_available"])
+        pool_size.labels(state="in_use").set(max(0, stats["pool_size"] - stats["pool_available"]))
+        pool_waiters.set(stats["requests_waiting"])
+        pool_max.set(stats["pool_max_size"])
+        for state in ("queued", "running", "succeeded", "dead", "canceled"):
+            job_states.labels(state=state).set(snapshot["states"].get(state, 0))
+        worker_states.labels(state="active").set(snapshot["workers"]["active"])
+        worker_states.labels(state="idle").set(snapshot["workers"]["idle"])
+        for event, value in (("retries", snapshot["recent"]["retries"]), ("expired_leases", snapshot["recent"]["expired"]), ("recovered_jobs", snapshot["recent"]["recovered"])):
+            lifecycle_metrics.labels(event=event).set(value)
+        return Response(generate_latest(request.app.state.metrics_registry), media_type=CONTENT_TYPE_LATEST)
 
     @app.middleware("http")
     async def rate_headers(request: Request, call_next):
@@ -552,7 +552,9 @@ def main() -> None:
     keys = _load_keys(os.environ.get("CHRONOS_API_KEYS", "{}"))
     app = create_app(api_keys=keys, rate_limit=int(os.environ.get("CHRONOS_API_RATE_LIMIT", "60")))
     host = os.environ.get("CHRONOS_API_HOST", "0.0.0.0")
-    port = int(os.environ.get("CHRONOS_API_PORT", "8000"))
+    # Render injects PORT for web services. Keep the explicit Chronos value as
+    # a local fallback, but never bind a Render service to the wrong port.
+    port = int(os.environ.get("PORT") or os.environ.get("CHRONOS_API_PORT", "8000"))
     uvicorn.run(app, host=host, port=port, access_log=False, timeout_graceful_shutdown=10)
 
 

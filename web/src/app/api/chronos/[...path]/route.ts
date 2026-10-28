@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { chronosApiOrigin } from "@/lib/server-api";
 
 const maxBody = 64 * 1024;
 const resourcePattern = {
@@ -58,7 +59,7 @@ async function proxy(request: NextRequest, context: { params: Promise<{ path: st
     try { body = new TextDecoder().decode(await readBoundedBody(request)); }
     catch { return Response.json({ error: { code: "request_too_large", message: "Request exceeds the 64 KiB limit." } }, { status: 413 }); }
   }
-  const origin = process.env.CHRONOS_API_URL ?? "http://127.0.0.1:8000";
+  const origin = chronosApiOrigin();
   const headers = new Headers({ Authorization: authorization, Accept: "application/json" });
   const idempotency = request.headers.get("idempotency-key");
   if (idempotency) headers.set("Idempotency-Key", idempotency);

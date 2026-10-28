@@ -12,6 +12,11 @@ Redis-aware readiness. Phase 5 adds bounded Prometheus metrics, request IDs,
 structured completion logs and reproducible local benchmark/profile artifacts.
 No live public demo or production performance results exist.
 
+The Chronos Render deployment topology, setup, cost estimate and deployment
+verification checklist are documented in [docs/render-production.md](docs/render-production.md).
+No Chronos cloud resources have been provisioned; paid deployment requires
+workspace selection and explicit approval of the estimated monthly cost.
+
 ## Local setup
 
 Install **Go 1.27.3** from https://go.dev/dl/ (verify its published SHA256).

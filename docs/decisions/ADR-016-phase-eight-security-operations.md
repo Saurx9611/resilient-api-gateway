@@ -26,6 +26,14 @@ with repository-native checks and an operations runbook is MUST.
   image findings a blocking gate. Do not upload source or artifacts to a new
   hosted scanning service. Dependency databases still come from their respective
   public advisory feeds during CI.
+* Trivy found the dashboard runtime image included five HIGH findings in
+  Node's globally installed npm tree, which the server does not execute. Pin the
+  Node base image and remove npm/npx from the final runtime stage; keep npm in
+  build stages. It also found stale Debian packages and build tools in the
+  worker image. Refresh the Python base digest and remove pip/setuptools/wheel
+  from the production image after install. Keep full findings visible; block all
+  CRITICAL findings and HIGH findings with available fixes. Record unfixable
+  HIGH findings as residual risk and re-evaluate them as base images change.
 * Add a standard-library `.gitignore` verifier for the required local secret,
   Python, Node, and Go artifact patterns. Do not create probe files or add broad
   ignore rules for source formats.

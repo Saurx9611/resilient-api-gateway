@@ -995,3 +995,65 @@ compileall -q worker_runtime` and `git diff --check` pass locally. The DB-backed
 Compose test could not be rerun in this session because Docker CLI could not
 connect to the Docker daemon; a GitHub Actions rerun is needed to verify the CI
 fix on its runner.
+
+### Phase 8 — Security hardening, CI/CD, and operational readiness (2026-10-28)
+
+- [x] Add pinned GitHub Actions gates for Go formatting/unit/race/vet/build, real Redis tests, Python/PostgreSQL integration tests and repeatable migration validation, frontend lint/type/build, source secrets, dependency and container vulnerability checks.
+- [x] Verify secret/local artifact ignore rules; add API readiness healthcheck and retain bounded API/worker timeouts, SIGTERM drain and private metrics controls.
+- [x] Add sanitized API and database-pool error logging; test authentication/authorization, rate limits, request bounds, database outage readiness and cancellation/ack contention.
+- [x] Audit queue transaction lock ordering for deadlocks and document rollback, backup restore, worker recovery and public demo abuse procedures.
+- [ ] Complete external hosted CI review, an isolated backup/restore drill, and public-ingress budget before any public deployment.
+
+Observed local evidence on Windows amd64 / Docker Desktop, real PostgreSQL Compose, Go 1.27.3 (prior recorded verification), Node 24, Python 3.11:
+
+| Check | Observed result |
+|---|---|
+| Full worker/PostgreSQL API/process suite after latest logging change | `docker compose -f compose.workers.yaml --profile test run --build --rm tests`: 55 tests passed in 98.426s, no skips |
+| Focused API suite after log filter | 17 tests passed in 9.571s; actual DB outage emitted only `database_pool_diagnostic` without peer address or driver detail |
+| API outage readiness | `/healthz` stays live while `/readyz` returns 503; raw psycopg connection diagnostics scrubbed |
+| Worker lifecycle and race cases | Full suite includes SIGTERM drain, SIGKILL lease recovery, timeout, expired-lease fencing, stale completion and cross-process ownership cases; all passed |
+| Migration repeatability | PostgreSQL migration applied twice; schema version 6 / 6 verified in the preceding full-stack run |
+| Git ignore rules | `python scripts/verify_gitignore.py`: 18 required entries verified |
+| Go CI syntax and Go regressions | actionlint and Go unit/race/vet/build passed in the earlier local execution recorded during this task; a later shell had no `go` executable on PATH, so no additional rerun is claimed |
+| Python / frontend dependencies | `pip-audit` and `npm audit --audit-level=high` had passed in the preceding checks; no new dependency added |
+| Go/Python dependency vulnerabilities | govulncheck and pip-audit reported no known vulnerabilities in the preceding local run |
+| Container scans | Gateway, upstream and dashboard had no HIGH/CRITICAL findings. Worker had no CRITICAL or fixable HIGH findings; Trivy reported 17 unique HIGH advisory IDs without published fixes across Debian 13.7 packages. These remain visible risks, not a clean scan |
+| CI workflows | YAML/actionlint checked locally earlier; GitHub-hosted workflow execution not available from this workspace |
+| Compose services | PostgreSQL-backed test stack passed; production control-profile image/healthcheck was not rebuilt and smoked after final log-filter edit |
+
+Deadlock/race review: inspected transaction paths and found consistent job-row-before-event ordering; scheduler locks schedule rows in deterministic order and then inserts occurrences/jobs; no reverse job/schedule lock path was found. `SKIP LOCKED`, transaction advisory migration lock, statement/lock timeouts and the cancellation/ack integration race are present. This is a static wait-for-graph review plus tested scenarios, not a formal proof for future SQL, triggers or untested schedules.
+
+Security/operations changes include pinned action revisions and scanner images, dependency/container gates, the `scripts/check_trivy_report.py` gate that fails CRITICAL and fixable HIGH while reporting unfixed HIGHs, required `.gitignore` assertions, API Compose readiness healthcheck, database-pool log scrubbing, refreshed Node/Python image digests with build-only package removal, and `docs/operations-runbook.md` procedures. No hosted release or public deployment was performed.
+
+Remaining risks: 17 unfixed HIGH OS advisory IDs in the worker image require reachability review and re-scan when Debian publishes fixes. No isolated PostgreSQL restore/RPO/RTO drill was performed. The dashboard demo remains intentionally unauthenticated for a small set of fixed simulator actions; current cooldown/rate budgets are process-local and are not sufficient for horizontally scaled public ingress. Static API bearer keys need deployment-grade secret storage/rotation. Hosted GitHub Actions, external ingress, backup restoration and production rollback are unverified. No public deployment is approved by this evidence.
+
+Exact next prompt:
+> Complete Phase 8 residual verification: run the pinned GitHub Actions workflows on a hosted PR; review the worker image's 17 unfixed HIGH advisory IDs for runtime reachability and refresh the base when fixes are available; perform an isolated PostgreSQL backup/restore drill with measured RPO/RTO; and define a trusted ingress-wide demo request/concurrency budget before public horizontal scaling. Do not deploy while critical findings or correctness failures remain. Update PLAN.md with observed evidence and the next smallest task.
+
+### Phase 9 — Production deployment on Render (2026-10-28)
+
+- [x] Preserve the existing root gateway Blueprint and define Chronos separately in `render.chronos.yaml`; validate it against Render's published schema.
+- [x] Add production Docker configuration for the API, persistent worker/scheduler processes, and Next.js dashboard; use Render's injected API `PORT`, private service host-port discovery, bounded database pools, operator-protected `/metrics`, and health endpoints.
+- [x] Document topology, GitHub checks-pass deployment setup, migration behavior, health and worker verification, shutdown/recovery steps, cost estimate, limitations and smoke checklist in `docs/render-production.md` and ADR-017.
+- [ ] Confirm the Render workspace and inspect its existing services/database; obtain explicit approval for the estimated $58.20/month incremental Hobby-workspace resources before provisioning.
+- [ ] Provision/sync the Blueprint, verify CI-gated GitHub deployments, deployed HTTPS health, Postgres, actual task/retry/schedule lifecycle, controlled worker termination/recovery, and real dashboard API data. No cloud deployment was performed during this preparation turn.
+
+Observed local evidence (Windows amd64 / Docker Desktop; PostgreSQL Compose integration environment):
+
+| Check | Observed result |
+|---|---|
+| Render Blueprint | `python scripts/validate_render_blueprint.py render.chronos.yaml`: valid against Render's published schema |
+| Python compile | `python -m compileall -q worker_runtime scripts`: passed |
+| PostgreSQL process/API/scheduler suite | `docker compose -f compose.workers.yaml --profile test run --build --rm tests`: 56 tests passed in 84.509s, including SIGKILL recovery, expired lease replacement/fencing, independent process ownership and two schedulers |
+| Dashboard static checks | `npm run lint`: passed; `npx tsc --noEmit`: passed |
+| Dashboard production build | `npm run build`: passed; Next.js generated `/api/healthz` and all app routes |
+| Dashboard production container | `docker build -f Dockerfile.web -t chronos-dashboard:phase9 .`: image built successfully. After setting `HOSTNAME=0.0.0.0`, in-container Docker health check reported `healthy` and `/api/healthz` returned HTTP 200 `{"status":"ok"}`. |
+| Source diff hygiene | `git diff --check`: passed |
+| Render cloud state | Not inspected because workspace confirmation is pending; no services/database deployed and no public URL exists |
+
+Cost estimate from Render public pricing reviewed 2026-10-28: five $7 `0.5c-512mb` service instances ($35), one $19 `0.5c-1g` Postgres instance and approximately $4.20/month for 14 billable GB of the configured 15 GB disk = **$58.20/month incremental**. This excludes taxes, overages, any Pro workspace subscription, and the existing gateway stack. It is an estimate, not a spending cap. See ADR-017 and `docs/render-production.md`.
+
+Remaining deployment risks/blockers: workspace identity and existing Render resources are unverified; no explicit cost approval; no deployed API/dashboard/worker/scheduler, GitHub-to-Render deployment run, HTTPS check, or cloud lifecycle evidence. The existing Phase 8 risks remain, including no isolated restore drill, public-demo ingress budget, unresolved unfixed HIGH advisories and no hosted CI run. Do not report Chronos as operational until cloud smoke evidence is captured.
+
+Exact next prompt:
+> Confirm the Render workspace “My Workspace” and approve provisioning the Chronos topology at the estimated incremental cost of $58.20/month on Hobby (plus any usage overages/taxes; no Pro workspace upgrade). Inspect existing resources first, then sync the validated `render.chronos.yaml` Blueprint from the GitHub repository after CI checks pass. Deploy and verify API/dashboard HTTPS health, PostgreSQL readiness, task success/retry/scheduling, and a controlled worker termination/recovery. Record real service IDs, deployment evidence, public URLs, and actual billing-plan costs in PLAN.md; do not claim unobserved behavior.

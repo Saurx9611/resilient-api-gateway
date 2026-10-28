@@ -4,6 +4,12 @@ This runbook is an operator procedure, not evidence that a hosted environment
 or a restore has been exercised. Keep backup credentials and artifacts outside
 the repository and restrict access to the control plane and database.
 
+CI's image gate blocks every CRITICAL advisory and every HIGH advisory with a
+published fix. It prints HIGH advisories that currently have no published fix;
+those are residual risk, not a clean scan. Review them against the affected
+runtime packages before a public release and repeat the scan after updating the
+base image or advisory database.
+
 ## Release rollback
 
 1. Stop promotion and record the failing release SHA, UTC time, error rate, and

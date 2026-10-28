@@ -55,9 +55,11 @@ jobs:
           test "$(docker image inspect resilient-gateway:ci resilient-upstream:ci resilient-gateway-web:ci --format '{{if .Config.Healthcheck}}healthcheck-configured{{else}}missing-healthcheck{{end}}' | grep -c '^healthcheck-configured$')" -eq 3
       - name: Container vulnerability scan
         run: |
-          mkdir -p "$HOME/.cache"
+          mkdir -p "$HOME/.cache" "$RUNNER_TEMP/trivy"
           for image in resilient-gateway:ci resilient-upstream:ci resilient-gateway-web:ci; do
-            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME/.cache:/root/.cache" aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c image --scanners vuln --severity HIGH,CRITICAL --exit-code 1 "$image"
+            report="$RUNNER_TEMP/trivy/$(printf '%s' "$image" | tr ':/' '__').json"
+            docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$HOME/.cache:/root/.cache" -v "$RUNNER_TEMP/trivy:/reports" aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c image --scanners vuln --severity HIGH,CRITICAL --format json --output "/reports/$(basename "$report")" "$image"
+            python3 scripts/check_trivy_report.py "$report"
           done
       - name: Compose smoke test
         env:

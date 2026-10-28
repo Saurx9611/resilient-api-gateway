@@ -1,0 +1,84 @@
+# Separate Blueprint for Chronos. The root render.yaml continues to manage the
+# existing Go gateway and its demo dependencies.
+databases:
+  - name: chronos-postgres
+    plan: 0.5c-1g
+    region: oregon
+    postgresMajorVersion: "16"
+    diskSizeGB: 15
+    storageAutoscalingEnabled: false
+    ipAllowList: []
+
+services:
+  - type: web
+    name: chronos-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile.worker
+    dockerContext: .
+    dockerCommand: api
+    region: oregon
+    plan: 0.5c-512mb
+    healthCheckPath: /readyz
+    autoDeployTrigger: checksPass
+    preDeployCommand: python -m worker_runtime migrate
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: WORKER_DATABASE_URL
+        fromDatabase: {name: chronos-postgres, property: connectionString}
+      - key: CHRONOS_API_KEYS
+        sync: false
+      - key: CHRONOS_API_RATE_LIMIT
+        value: "60"
+      - key: CHRONOS_DB_POOL_MIN
+        value: "1"
+      - key: CHRONOS_DB_POOL_MAX
+        value: "8"
+
+  - type: web
+    name: chronos-dashboard
+    runtime: docker
+    dockerfilePath: ./Dockerfile.web
+    dockerContext: .
+    region: oregon
+    plan: 0.5c-512mb
+    healthCheckPath: /api/healthz
+    autoDeployTrigger: checksPass
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: CHRONOS_API_INTERNAL_HOSTPORT
+        fromService: {type: web, name: chronos-api, property: hostport}
+
+  - type: worker
+    name: chronos-worker
+    runtime: docker
+    dockerfilePath: ./Dockerfile.worker
+    dockerContext: .
+    dockerCommand: worker --name render-worker --concurrency 2 --lease-seconds 30 --handler-timeout 30 --shutdown-grace 45
+    region: oregon
+    plan: 0.5c-512mb
+    numInstances: 2
+    autoDeployTrigger: checksPass
+    preDeployCommand: python -m worker_runtime migrate
+    maxShutdownDelaySeconds: 60
+    envVars:
+      - key: WORKER_DATABASE_URL
+        fromDatabase: {name: chronos-postgres, property: connectionString}
+
+  - type: worker
+    name: chronos-scheduler
+    runtime: docker
+    dockerfilePath: ./Dockerfile.worker
+    dockerContext: .
+    dockerCommand: scheduler --poll-interval 1
+    region: oregon
+    plan: 0.5c-512mb
+    autoDeployTrigger: checksPass
+    preDeployCommand: python -m worker_runtime migrate
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: WORKER_DATABASE_URL
+        fromDatabase: {name: chronos-postgres, property: connectionString}
+      - key: CHRONOS_DB_POOL_MIN
+        value: "1"
+      - key: CHRONOS_DB_POOL_MAX
+        value: "2"
